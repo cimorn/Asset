@@ -2,7 +2,9 @@ import {createHmac,randomBytes,scrypt as derive,timingSafeEqual} from 'node:cryp
 import {promisify} from 'node:util';
 const scrypt=promisify(derive),lifetime=7*24*60*60;
 export async function createAuth({username,password,secret,secure,accountId}){
- if(!username||typeof password!=='string'||password.length<12||typeof secret!=='string'||secret.length<32)throw new Error('请设置 APP_USERNAME、至少 12 位的 APP_PASSWORD 和至少 32 位的 SESSION_SECRET。');
+ if(typeof username!=='string'||!username.trim())throw new Error('请设置 APP_USERNAME（登录用户名不能为空）。');
+ if(typeof password!=='string'||!password.length)throw new Error('请设置 APP_PASSWORD（登录密码不能为空，无最小长度要求）。');
+ if(typeof secret!=='string'||secret.length<32)throw new Error('请保留 Render 自动生成的 SESSION_SECRET，或设置至少 32 位的会话密钥；它不是登录密码。');
  const salt=randomBytes(16),expected=await scrypt(password,salt,32);
  const sessionKey=createHmac('sha256',secret).update(password).digest();
  const mac=value=>createHmac('sha256',sessionKey).update(value).digest('base64url');

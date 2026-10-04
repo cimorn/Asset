@@ -34,7 +34,7 @@
 
 5. 部署完成后访问 Render 给出的 HTTPS 地址，使用 `APP_USERNAME`（默认 `admin`）和 `APP_PASSWORD` 登录。首次读取可能需要等待飞书响应。
 
-也可以新建普通 **Web Service**：Runtime 选 Node，Instance Type 选 Free，Build Command 填 `npm ci --include=dev && npm run typecheck && npm run build`，Start Command 填 `npm start`，Health Check Path 填 `/healthz`。手动部署时额外设置 `NODE_ENV=production`、`NODE_VERSION=22.22.0`、`APP_USERNAME=admin`、至少 12 位的 `APP_PASSWORD` 和至少 32 位随机 `SESSION_SECRET`。只有通过 Blueprint 创建时，YAML 中的自动生成设置才会生效。
+也可以新建普通 **Web Service**：Runtime 选 Node，Instance Type 选 Free，Build Command 填 `npm ci --include=dev && npm run typecheck && npm run build`，Start Command 填 `npm start`，Health Check Path 填 `/healthz`。手动部署时额外设置 `NODE_ENV=production`、`NODE_VERSION=22.22.0`、`APP_USERNAME=admin`、非空的 `APP_PASSWORD` 和至少 32 位随机 `SESSION_SECRET`。登录用户名可以自定义，登录密码无最小长度要求。`SESSION_SECRET` 是后台会话与上传恢复记录的签名密钥，不是登录密码，修改用户名或密码时保留它原有的值。只有通过 Blueprint 创建时，YAML 中的自动生成设置才会生效。
 
 如果上传的是同时包含桌面版 `app` 和 `website` 的整个项目，普通 Web Service 的 Root Directory 填 `website`；使用 Blueprint 时配置路径改为 `website/render.yaml`，并在该服务声明中加入 `rootDir: website`。
 
