@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+# Upload the contents of website/ to the repository root.
+services:
+  - type: web
+    name: asset-manager
+    repo: https://github.com/cimorn/AssetManager
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run typecheck && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NODE_ENV
+        value: production
+      - key: APP_USERNAME
+        value: admin
+      - key: APP_PASSWORD
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FEISHU_APP_ID
+        sync: false
+      - key: FEISHU_APP_SECRET
+        sync: false
+      - key: FEISHU_WIKI_ROOT_TOKEN
+        sync: false
+      - key: FEISHU_DRIVE_ROOT_TOKEN
+        sync: false
+      - key: FEISHU_WEB_BASE_URL
+        sync: false
+      - key: FEISHU_TABLE_URL
+        sync: false
+      - key: FEISHU_API_BASE_URL
+        value: https://open.feishu.cn/open-apis

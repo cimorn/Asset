@@ -1,0 +1,40 @@
+.update-dates-panel{margin-bottom:22px;overflow:hidden}
+.update-dates-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px 18px}
+.update-dates-heading h2{font-size:15px;font-weight:600;color:#273c59}
+.update-dates-heading p{font-size:11px;line-height:1.7;color:#8a98ad;margin-top:7px}
+.update-dates-caption{font-size:11px;color:#8a98ad;white-space:nowrap}
+.update-dates-scroll{max-height:245px;overflow:auto}
+.update-dates-table{width:100%;font-size:12px}
+.update-dates-table tr{border-color:#edf1f7}
+.update-dates-table th{height:40px;background:#f7f9fc;color:#8592a8;font-weight:400;font-size:11px;padding:0 24px}
+.update-dates-table td{padding:10px 24px;color:#63738d;border-color:#edf1f7}
+.update-dates-table .numeric{text-align:right;font-variant-numeric:tabular-nums}
+.update-dates-table tr[data-selected=true]{background:#f5f8fd}
+.update-date-link{color:#4f719e;font-variant-numeric:tabular-nums;white-space:nowrap;padding:6px 0}
+.update-date-link:hover{text-decoration:underline}
+.update-latest{margin-left:10px;font-size:10px;color:#8293ac;padding:3px 7px;background:#eaf0f8;border-radius:5px}
+.update-count{padding:6px 12px;border-radius:7px;min-width:58px;white-space:nowrap;background:#f0f4f9;color:#627fa3}
+.update-count.updated{background:#edf5f1;color:#538471}
+.update-count.pending{background:#fbf2e8;color:#a47c43}
+.update-count:hover{box-shadow:inset 0 0 0 1px currentColor}
+.update-count[aria-pressed=true]{box-shadow:inset 0 0 0 1px currentColor;font-weight:600}
+.update-date-filters{display:flex;align-items:center;flex-wrap:wrap;gap:14px 20px;padding:17px 24px;border-top:1px solid #edf1f7}
+.update-date-filters label{display:flex;align-items:center;gap:10px;font-size:11px;color:#7a89a0;white-space:nowrap}
+.update-date-filters .choice{width:145px!important}
+.update-date-filters p{font-size:11px;color:#8a98ad;margin-left:auto}
+.update-dates-empty{padding:20px 24px;color:#8a98ad;font-size:12px}
+.active-update-filter{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 16px;margin-bottom:16px;background:#edf3f9;border:1px solid #dce5ef;border-radius:10px;font-size:12px;color:#526c8c}
+.active-update-filter>span{margin-right:auto}
+.active-update-filter>button{font-size:11px;color:#56759a;white-space:nowrap}
+.active-update-filter>button:hover{text-decoration:underline}
+.asset-controls{display:flex;align-items:center;gap:16px;padding:18px 22px;overflow-x:auto}
+.asset-controls .asset-toolbar{padding:0;flex:1 0 490px;flex-wrap:nowrap;align-items:center}
+.asset-controls .search-field{min-width:150px}
+.asset-controls .asset-toolbar>.choice{flex:0 0 102px;min-width:102px;max-width:102px}
+.asset-controls .text-button{white-space:nowrap;flex-shrink:0}
+.asset-controls .group-toolbar{padding:0;flex:0 0 auto;flex-wrap:nowrap;gap:12px}
+.asset-controls .group-toolbar>.choice{width:145px!important;max-width:145px;flex-shrink:0}
+.asset-controls .group-toolbar [data-slot=tabs-list]{height:38px;white-space:nowrap}
+.asset-controls .group-toolbar [data-slot=tabs-trigger]{padding:4px 10px}
+.asset-controls .search-field{flex-basis:auto}
+@media(max-width:600px){.update-dates-heading{padding:18px 16px;align-items:flex-start}.update-dates-caption{display:none}.update-dates-table th,.update-dates-table td{padding-left:12px;padding-right:12px}.update-latest{display:none}.update-date-filters{padding:15px;gap:12px}.update-date-filters label{flex:1;min-width:180px}.update-date-filters .choice{flex:1;width:auto!important}.update-date-filters p{flex-basis:100%;margin-left:0}.update-count{min-width:50px;padding:6px 8px}}
