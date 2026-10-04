@@ -15,8 +15,10 @@ services:
         value: 22.22.0
       - key: NODE_ENV
         value: production
+      - key: APP_ORIGIN
+        value: https://asset.mcj.life
       - key: APP_USERNAME
-        value: admin
+        sync: false
       - key: APP_PASSWORD
         generateValue: true
       - key: SESSION_SECRET
