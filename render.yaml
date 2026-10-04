@@ -17,8 +17,6 @@ services:
         value: production
       - key: APP_ORIGIN
         value: https://asset.mcj.life
-      - key: APP_USERNAME
-        sync: false
       - key: APP_PASSWORD
         generateValue: true
       - key: SESSION_SECRET

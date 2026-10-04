@@ -21,7 +21,7 @@ export async function createWebServer({environment=process.env,service,staticDir
  const origin=originText?new URL(originText).origin:null;
  if(production&&(!origin||!origin.startsWith('https://')))throw Error('请配置 HTTPS APP_ORIGIN，或使用 Render 提供的 RENDER_EXTERNAL_URL。');
  const accountId=createHash('sha256').update([environment.FEISHU_APP_ID,environment.FEISHU_WIKI_ROOT_TOKEN,environment.FEISHU_TABLE_URL].join('\n')).digest('hex').slice(0,24);
- const auth=await createAuth({username:environment.APP_USERNAME,password:environment.APP_PASSWORD,secret:environment.SESSION_SECRET,secure:production,accountId});
+ const auth=await createAuth({password:environment.APP_PASSWORD,secret:environment.SESSION_SECRET,secure:production,accountId});
  const journal=createJournalSigner(environment.SESSION_SECRET,accountId);
  let cloud=null,lastRead=0,refreshing=null,writing=false;
  const target=environment.FEISHU_TABLE_URL||'';

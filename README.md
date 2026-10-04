@@ -8,7 +8,7 @@
 - 更新资产、流水或汇率时，先写入当前浏览器的 IndexedDB 缓存。点击“上传”后才写入飞书。汇率输入框中尚未点击保存的完整输入，也会在上传时一并保存。
 - 关闭网页、Render 休眠或重启后，同一浏览器的草稿仍可恢复。换电脑、换浏览器或无痕窗口只能读取已上传的飞书数据。清除本站浏览器数据会删除未上传草稿；需要保留时先上传，或在设置中下载完整备份。
 - 上传中断后保留浏览器恢复记录，再点击“上传”可继续。上传尚未完成时先续传，再编辑新内容。不要随意重置 `SESSION_SECRET`，否则已有恢复记录不能通过验证。
-- 用户名和密码保护账本页面与数据接口。飞书 App Secret 只在服务端使用，浏览器不接收它，也不需要选择 `.env`。
+- 密码保护账本页面与数据接口，无需填写用户名。飞书 App Secret 只在服务端使用，浏览器不接收它，也不需要选择 `.env`。
 
 ## 上传 GitHub
 
@@ -32,9 +32,9 @@
    | `FEISHU_WEB_BASE_URL` | 原飞书租户网址 |
    | `FEISHU_TABLE_URL` | 现有「财务管理」多维表格的知识库链接 |
 
-5. 部署完成后访问 Render 给出的 HTTPS 地址，使用 `APP_USERNAME`（默认 `admin`）和 `APP_PASSWORD` 登录。首次读取可能需要等待飞书响应。
+5. 部署完成后访问 Render 给出的 HTTPS 地址，使用 `APP_PASSWORD` 登录，无需用户名。首次读取可能需要等待飞书响应。
 
-也可以新建普通 **Web Service**：Runtime 选 Node，Instance Type 选 Free，Build Command 填 `npm ci --include=dev && npm run typecheck && npm run build`，Start Command 填 `npm start`，Health Check Path 填 `/healthz`。手动部署时额外设置 `NODE_ENV=production`、`NODE_VERSION=22.22.0`、`APP_USERNAME=admin`、非空的 `APP_PASSWORD` 和至少 32 位随机 `SESSION_SECRET`。登录用户名可以自定义，登录密码无最小长度要求。`SESSION_SECRET` 是后台会话与上传恢复记录的签名密钥，不是登录密码，修改用户名或密码时保留它原有的值。只有通过 Blueprint 创建时，YAML 中的自动生成设置才会生效。
+也可以新建普通 **Web Service**：Runtime 选 Node，Instance Type 选 Free，Build Command 填 `npm ci --include=dev && npm run typecheck && npm run build`，Start Command 填 `npm start`，Health Check Path 填 `/healthz`。手动部署时额外设置 `NODE_ENV=production`、`NODE_VERSION=22.22.0`、非空的 `APP_PASSWORD` 和至少 32 位随机 `SESSION_SECRET`。登录只需密码，无最小长度要求。`SESSION_SECRET` 是后台会话与上传恢复记录的签名密钥，不是登录密码，修改密码时保留它原有的值。只有通过 Blueprint 创建时，YAML 中的自动生成设置才会生效。
 
 如果上传的是同时包含桌面版 `app` 和 `website` 的整个项目，普通 Web Service 的 Root Directory 填 `website`；使用 Blueprint 时配置路径改为 `website/render.yaml`，并在该服务声明中加入 `rootDir: website`。
 

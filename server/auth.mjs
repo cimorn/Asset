@@ -1,8 +1,7 @@
 import {createHmac,randomBytes,scrypt as derive,timingSafeEqual} from 'node:crypto';
 import {promisify} from 'node:util';
 const scrypt=promisify(derive),lifetime=7*24*60*60;
-export async function createAuth({username,password,secret,secure,accountId}){
- if(typeof username!=='string'||!username.trim())throw new Error('请设置 APP_USERNAME（登录用户名不能为空）。');
+export async function createAuth({password,secret,secure,accountId}){
  if(typeof password!=='string'||!password.length)throw new Error('请设置 APP_PASSWORD（登录密码不能为空，无最小长度要求）。');
  if(typeof secret!=='string'||secret.length<32)throw new Error('请保留 Render 自动生成的 SESSION_SECRET，或设置至少 32 位的会话密钥；它不是登录密码。');
  const salt=randomBytes(16),expected=await scrypt(password,salt,32);
@@ -24,9 +23,9 @@ export async function createAuth({username,password,secret,secure,accountId}){
    const key=address||'unknown',prior=failures.get(key);
    if(active>=4||prior?.count>=6||failures.size>2000)return {status:429,error:'尝试次数较多，请稍后再试。'};
    failures.set(key,{count:(prior?.count??0)+1,until:prior?.until??now+15*60*1000});
-   if(typeof input?.password!=='string'||input.password.length>512||typeof input?.username!=='string'||input.username.length>100)return {status:401,error:'用户名或密码不正确。'};
-   active++;let matched=false;try{const actual=await scrypt(input.password,salt,32);matched=timingSafeEqual(actual,expected)&&equal(input.username,username);}finally{active--;}
-   if(!matched)return {status:401,error:'用户名或密码不正确。'};
+   if(typeof input?.password!=='string'||input.password.length>512)return {status:401,error:'密码不正确。'};
+   active++;let matched=false;try{const actual=await scrypt(input.password,salt,32);matched=timingSafeEqual(actual,expected);}finally{active--;}
+   if(!matched)return {status:401,error:'密码不正确。'};
    failures.delete(key);const payload=Buffer.from(JSON.stringify({accountId,expires:now+lifetime*1000,nonce:randomBytes(16).toString('hex')})).toString('base64url');
    return {status:200,cookie:cookie(payload+'.'+mac(payload),lifetime)};
   },
