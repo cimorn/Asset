@@ -2,7 +2,7 @@
 # Upload the contents of website/ to the repository root.
 services:
   - type: web
-    name: asset-manager
+    name: AssetManager
     repo: https://github.com/cimorn/AssetManager
     runtime: node
     plan: free
