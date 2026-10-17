@@ -23,6 +23,23 @@ for(const tree of ['website','app']){
  test(`${tree}: classification choices are exactly the four requested groups`,()=>{
   assert.deepEqual(api.classificationOptions(fixture()),['股市','黄金','虚拟币','现金']);
  });
+ test(`${tree}: historical cash correction rebuilds every investment point without changing transaction values`,()=>{
+  const before=fixture(),inputs=api.ledgerInputs(before);
+  for(const record of inputs.records)if(record.assetId==='fund')record.classification='现金';
+  const after=api.projectLedger(inputs);
+  assert.deepEqual(after.records.map(({id,date,amount,after,settlement})=>({id,date,amount,after,settlement})),before.records.map(({id,date,amount,after,settlement})=>({id,date,amount,after,settlement})));
+  for(const date of [start,next,last]){
+   const book=api.ledgerAtDate(after,date),overview=api.investmentOverview(book,'CNY');
+   assert.equal(book.assets.find(row=>row.id==='fund').classification,'现金');
+   assert.equal(overview.summary.value,date===start?100:120);
+   assert.ok(!overview.classified.some(row=>row.name==='基金'));
+   assert.ok(Math.abs(overview.classified.reduce((sum,row)=>sum+row.share,0)-100)<1e-10);
+   const total=api.assetSummary(book.assets,'CNY',book.rates).value;
+   assert.equal(overview.classified.find(row=>row.name==='现金').share,(date===start?1200:1210)/total*100);
+  }
+  assert.deepEqual(after.snapshots.map(row=>row.investmentTotals.CNY),[100,120,120]);
+  assert.deepEqual(after.gainSnapshots.map(api.investmentReturn),[0,20,20]);
+ });
  test(`${tree}: moving a holding to cash preserves its historical cost and market value`,()=>{
   const before=fixture(),after=api.applyAction(before,{type:'classify',id:'fund',classification:'现金',date:next});
   assert.equal(api.accountClassification(after.assets.find(row=>row.id==='fund')),'现金');

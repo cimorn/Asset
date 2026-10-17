@@ -50,9 +50,9 @@ for(const tree of ['website','app']){
  test(`${tree}: investment summary excludes the cash classification, retains remaining investment balances, and places cash last`,()=>{
   const book=fixture(false),overview=api.investmentOverview(book,'CNY');
   assert.equal(overview.summary.value,510);assert.equal(overview.performance.cost,450);assert.equal(overview.performance.gain,60);
-  assert.equal(overview.classified.at(-1).name,'现金');assert.equal(overview.classified.at(-1).share,null);
+  assert.equal(overview.classified.at(-1).name,'现金');assert.equal(overview.classified.at(-1).share,900/1410*100);
   assert.equal(overview.classified.find(row=>row.name==='股市').value,270);
-  assert.equal(overview.classified.filter(row=>row.name!=='现金').reduce((s,r)=>s+r.share,0),100);
+  assert.ok(Math.abs(overview.classified.reduce((s,r)=>s+r.share,0)-100)<1e-10);
   assert.equal(book.snapshots.at(-1).investmentTotals.USD,30);
   assert.equal(book.gainSnapshots.at(-1).cnyInvestmentTotal,60);
   assert.equal(book.gainSnapshots.at(-1).cnyTotal,260);

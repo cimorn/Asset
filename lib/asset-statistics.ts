@@ -29,7 +29,8 @@ export function classificationSummaries(book:Book,base:string){return assetGroup
 export function investmentOverview(book:Book,base:string){
  const summary=assetSummary(book.assets.filter(asset=>accountClassification(asset)!=='现金'),base,book.rates);
  const performance=portfolioPerformance(book,base).investment;
- const classified=classificationSummaries(book,base).sort((a,b)=>Number(a.name==='现金')-Number(b.name==='现金')).map(group=>({...group,share:group.name==='现金'?null:summary.value?group.value/summary.value*100:0}));
+ const total=assetSummary(book.assets,base,book.rates).value;
+ const classified=classificationSummaries(book,base).sort((a,b)=>Number(a.name==='现金')-Number(b.name==='现金')).map(group=>({...group,share:total?group.value/total*100:0}));
  return {summary,performance,classified};
 }
 

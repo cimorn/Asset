@@ -27,7 +27,7 @@ export default function PortfolioSummary({book,base,hidden}:{book:Book;base:stri
  return <div className="classification-summary-grid">
   <section className="wealth-card currency-themed" style={currencyStyle(base)}><div className="card-top"><span>总资产 <Eye size={15}/></span><span className="currency-code">{base}</span></div><div className="wealth-value">{fmt(all.value)}</div><SummaryPerformance value={performance.total} hidden={hidden}/></section>
   <section className="wealth-card currency-themed" style={currencyStyle(base)}><div className="card-top"><span>总投资 <Eye size={15}/></span><span className="currency-code">{base}</span></div><div className="wealth-value">{fmt(summary.value)}</div><SummaryPerformance value={investment} hidden={hidden}/></section>
-  {classified.map(group=><section className="stat-card classification-stat" key={group.name} data-classification={group.name}><div className="stat-label"><span>{group.name}</span><span className="classification-share">{group.share===null?'单独统计':`${group.share.toFixed(1)}%`}</span></div><strong>{fmt(group.value)}</strong><SummaryPerformance value={performance.groups[group.name]} hidden={hidden}/></section>)}
+  {classified.map(group=><section className="stat-card classification-stat" key={group.name} data-classification={group.name}><div className="stat-label"><span>{group.name}</span><span className="classification-share">{`${group.share.toFixed(1)}%`}</span></div><strong>{fmt(group.value)}</strong><SummaryPerformance value={performance.groups[group.name]} hidden={hidden}/></section>)}
  </div>;
 }
 
