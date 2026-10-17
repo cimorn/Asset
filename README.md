@@ -79,6 +79,8 @@ node --env-file=C:/private/old-feishu.env scripts/export-feishu-readonly.mjs --l
 
 生产只接受 `APP_ORIGIN` 的 Host。所有 POST 需要相同 `Origin`，JSON 内容类型；桌面请求也须带该 Origin，并在内存保存登录 cookie。生产 cookie 为 HttpOnly、SameSite=Strict、Secure，客户端不得关闭 TLS 验证。
 
+登录限制：同一连接来源每分钟最多提交 10 次，15 分钟窗口内累计失败 6 次后须等待该窗口结束；全站每分钟最多接受 60 次登录提交，同时处理最多 4 个。限制在读取登录正文前检查，格式错误也计数；成功登录只扣回本次失败预留，不清空提交次数和之前的失败记录。429 响应提供 `Retry-After` 与中文等待提示。只使用 socket 来源，不信任客户端自填的转发 IP；同一反向代理后的访问共享来源额度。计数只存服务内存，重启服务清零，不写入账本数据库，已登录的会话不受登录限流影响。
+
 | 接口 | 请求及响应 |
 | --- | --- |
 | `GET /api/session` | `{authenticated}`；登录后还返回 `accountId/cacheNamespace/instanceId/ledgerId/source` 和可选 `legacyAccountId` |

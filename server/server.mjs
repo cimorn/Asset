@@ -47,9 +47,11 @@ export async function createWebServer({environment=process.env,service,staticDir
    if(req.method==='POST'&&(req.headers.origin!==(origin??localOrigin)||req.headers['sec-fetch-site']==='cross-site'))throw problem('请求来源无效，请从本站页面重试。',403);
    if(url.pathname==='/api/session'&&req.method==='GET')return send(200,{authenticated:auth.session(req),...(auth.session(req)?identity:{})});
    if(url.pathname==='/api/login'&&req.method==='POST'){
-    if(Number(req.headers['content-length']??0)>4096)throw problem('登录请求过大。',413);
-    const result=await auth.login(await jsonBody(req,4096),req.socket.remoteAddress);
-    return send(result.status,result.cookie?{authenticated:true,...identity}:{error:result.error},result.cookie?{'Set-Cookie':result.cookie}:{});
+    const result=await auth.login(()=>{
+     if(Number(req.headers['content-length']??0)>4096)throw problem('登录请求过大。',413);
+     return jsonBody(req,4096);
+    },req.socket.remoteAddress);
+    return send(result.status,result.cookie?{authenticated:true,...identity}:{error:result.error,...(result.retryAfter?{retryAfter:result.retryAfter}:{})},result.cookie?{'Set-Cookie':result.cookie}:result.retryAfter?{'Retry-After':String(result.retryAfter),'Connection':'close'}:{});
    }
    if(url.pathname==='/api/logout'&&req.method==='POST')return send(200,{authenticated:false},{'Set-Cookie':auth.clear()});
    if(url.pathname.startsWith('/api/')){
