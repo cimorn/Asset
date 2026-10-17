@@ -8,3 +8,5 @@ server/runtime/
 *.log
 *.tsbuildinfo
 coverage/
+deploy/nas/backups/
+!deploy/nas/.env.init.example

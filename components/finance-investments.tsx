@@ -6,7 +6,7 @@ import {TrendingUp,Search} from 'lucide-react';
 import {AreaChart,Area,XAxis,YAxis,Tooltip,ResponsiveContainer,ReferenceLine} from 'recharts';
 import {Table,TableHeader,TableHead,TableRow,TableBody,TableCell} from '@/components/ui/table';
 import {type Book,type Asset,convert} from '@/lib/finance';
-import {gainReturn,type GainSnapshot} from '@/lib/investing';
+import {gainReturn,investmentReturn,type GainSnapshot} from '@/lib/investing';
 import {accountClassification,capitalAccounts} from '@/lib/capital-accounts';
 import {money,amountText,chartBounds} from './finance-dashboard';
 import {chartAmount,chartPercent,chartTime,chartDate,chartMonth,chartEndpointTicks} from '@/lib/chart-format';
@@ -33,13 +33,13 @@ export default function InvestmentWorkspace({book,base,hidden,onIcon}:{book:Book
  </div>;
 }
 
-const curves={total:{title:'累计收益曲线',color:'#7e8fad'},股票:{title:'股票收益率曲线',color:'#6b9bb4'},黄金:{title:'黄金收益率曲线',color:'#c4a063'},基金:{title:'基金收益率曲线',color:'#78a38f'},虚拟币:{title:'虚拟币收益率曲线',color:'#9b86b8'}};
+const curves={total:{title:'收益率',color:'#7e8fad'},股票:{title:'股市收益率曲线',color:'#6b9bb4'},黄金:{title:'黄金收益率曲线',color:'#c4a063'},虚拟币:{title:'虚拟币收益率曲线',color:'#9b86b8'}};
 export function IncomeCurve({book,history,hidden,kind}:{book:Book;history:GainSnapshot[];hidden:boolean;kind:keyof typeof curves}){
- const curve=curves[kind],percentage=kind!=='total';
+ const curve=curves[kind],percentage=true;
  const trend=history.map(snapshot=>{
   const totals=kind==='total'?snapshot.totals:snapshot.categories?.[kind];
-  const locked=kind==='total'?snapshot.cnyTotal:snapshot.cnyCategories?.[kind];
-  return {date:snapshot.date,time:chartTime(snapshot.date),gain:kind==='total'?locked??(totals?Object.entries(totals).reduce((value,[currency,amount])=>value+convert(amount,currency,'CNY',snapshot.rates??ratesAt(book,snapshot.date)),0):null):gainReturn(snapshot,kind)};
+  const locked=kind==='total'?snapshot.cnyInvestmentTotal:snapshot.cnyCategories?.[kind];
+  return {date:snapshot.date,time:chartTime(snapshot.date),gain:kind==='total'?investmentReturn(snapshot):gainReturn(snapshot,kind)};
  });
  const values=trend.flatMap(point=>point.gain===null?[]:[point.gain]),available=values.length>0,gradient='income-gradient-'+kind;
  const first=trend.findIndex(point=>point.gain!==null),last=trend.findLastIndex(point=>point.gain!==null);

@@ -5,6 +5,7 @@ import {recordRate} from './exchange.ts';
 export function isCashMovement(record:RecordEntry){return record.category==='现金'&&(['转入','存入','取出','消费','买入扣款','卖出到账','转账转入','转账转出'].includes(record.type)||record.type==='剩余'&&!!record.remainingMode&&record.remainingMode!=='更新市值');}
 
 export function recordDisplay(record:RecordEntry){
+ if(record.classificationChange)return {label:'分类调整',caption:(record.previousClassification??'')+' → '+(record.classification??''),value:0,direction:'neutral',signed:false};
  if(record.type==='剩余'){
   if(record.remainingMode&&record.remainingMode!=='更新市值')return {label:'剩余',caption:record.remainingMode,value:Math.abs(record.settlement??record.amount),direction:record.remainingMode==='转入'?'income':'expense',signed:false};
   return {label:'剩余',caption:record.remainingMode??'余额',value:record.after,direction:'neutral',signed:false};
@@ -30,7 +31,7 @@ export function recordEntries(book:Book){
  return book.records.map((record,index)=>({record,index})).sort((a,b)=>b.record.date.localeCompare(a.record.date)||a.index-b.index).map(({record})=>{
   const display=recordDisplay(record),totals=accounts.get(record.assetId),investment=!!totals;
   const invested=record.invested??totals?.invested,proceeds=record.proceeds??totals?.proceeds;
-  const item={record,label:display.label,operationAmount:display.label==='更新'||record.remainingMode==='更新市值'?null:Math.abs(display.value),value:record.after,netCost:investment&&totals.known&&invested!==undefined?roundMoney(invested-(proceeds??0)):null,proceeds:investment?proceeds??0:null,exchangeRate:recordRate(book,record)};
+  const item={record,label:display.label,operationAmount:record.classificationChange||display.label==='更新'||record.remainingMode==='更新市值'?null:Math.abs(display.value),value:record.after,netCost:investment&&totals.known&&invested!==undefined?roundMoney(invested-(proceeds??0)):null,proceeds:investment?proceeds??0:null,exchangeRate:recordRate(book,record)};
   if(totals){if(display.label==='买入')totals.invested=roundMoney(totals.invested-Math.abs(display.value));if(display.label==='卖出')totals.proceeds=roundMoney(totals.proceeds-Math.abs(display.value));}
   return item;
  });

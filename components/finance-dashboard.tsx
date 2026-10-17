@@ -4,7 +4,7 @@ import {currencyStyle} from '@/lib/currency-theme';
 import {useState} from 'react';
 import {ratesAt} from '@/lib/exchange';
 import {chartAmount,chartTime,chartDate,chartMonth,chartEndpointTicks} from '@/lib/chart-format';
-import {portfolioPerformance} from '@/lib/asset-statistics';
+import {portfolioPerformance,investmentOverview} from '@/lib/asset-statistics';
 import {Eye,TrendingUp} from 'lucide-react';
 import {Tabs,TabsList,TabsTrigger} from '@/components/ui/tabs';
 import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem} from '@/components/ui/select';
@@ -21,11 +21,13 @@ export function chartBounds(values:number[]):[number,number]{
 }
 
 export default function PortfolioSummary({book,base,hidden}:{book:Book;base:string;hidden:boolean}){
- const summary=assetSummary(book.assets,base,book.rates),classified=classificationSummaries(book,base),performance=portfolioPerformance(book,base);
+ const {summary,classified,performance:investment}=investmentOverview(book,base),performance=portfolioPerformance(book,base);
+ const all=assetSummary(book.assets,base,book.rates);
  const fmt=(n:number)=>hidden?'••••••':amountText(n);
  return <div className="classification-summary-grid">
-  <section className="wealth-card currency-themed" style={currencyStyle(base)}><div className="card-top"><span>总资产 <Eye size={15}/></span><span className="currency-code">{base}</span></div><div className="wealth-value">{fmt(summary.value)}</div><SummaryPerformance value={performance.total} hidden={hidden}/></section>
-  {classified.map(group=><section className="stat-card classification-stat" key={group.name} data-classification={group.name}><div className="stat-label"><span>{group.name}</span><span className="classification-share">{summary.value?(group.value/summary.value*100).toFixed(1):'0.0'}%</span></div><strong>{fmt(group.value)}</strong><SummaryPerformance value={performance.groups[group.name]} hidden={hidden}/></section>)}
+  <section className="wealth-card currency-themed" style={currencyStyle(base)}><div className="card-top"><span>总资产 <Eye size={15}/></span><span className="currency-code">{base}</span></div><div className="wealth-value">{fmt(all.value)}</div><SummaryPerformance value={performance.total} hidden={hidden}/></section>
+  <section className="wealth-card currency-themed" style={currencyStyle(base)}><div className="card-top"><span>总投资 <Eye size={15}/></span><span className="currency-code">{base}</span></div><div className="wealth-value">{fmt(summary.value)}</div><SummaryPerformance value={investment} hidden={hidden}/></section>
+  {classified.map(group=><section className="stat-card classification-stat" key={group.name} data-classification={group.name}><div className="stat-label"><span>{group.name}</span><span className="classification-share">{group.share===null?'单独统计':`${group.share.toFixed(1)}%`}</span></div><strong>{fmt(group.value)}</strong><SummaryPerformance value={performance.groups[group.name]} hidden={hidden}/></section>)}
  </div>;
 }
 
@@ -38,12 +40,12 @@ export function AssetTrend({book,base,hidden}:{book:Book;base:string;hidden:bool
  const [period,setPeriod]=useState('all');
  const latest=book.snapshots.at(-1)?.date??book.statisticsStart??'2026-09-01';
  const cutoff=new Date(`${latest}T00:00:00Z`);cutoff.setUTCMonth(cutoff.getUTCMonth()-(period==='1m'?1:6));
- const trend=book.snapshots.filter(s=>(!book.statisticsStart||s.date>=book.statisticsStart)&&(period==='all'||s.date>=cutoff.toISOString().slice(0,10))).map(s=>({date:s.date,time:chartTime(s.date),value:Object.entries(s.totals).reduce((n,[c,v])=>n+convert(v,c,base,s.rates??ratesAt(book,s.date)),0)}));
- return <section className="panel trend-panel" style={{'--curve-color':'#6e8fb7'} as React.CSSProperties}><div className="panel-heading"><h2>资产趋势</h2><Tabs value={period} onValueChange={setPeriod}><TabsList><TabsTrigger value="1m">1个月</TabsTrigger><TabsTrigger value="6m">6个月</TabsTrigger><TabsTrigger value="all">全部</TabsTrigger></TabsList></Tabs></div><div className="trend-chart">
+ const trend=book.snapshots.filter(s=>(!book.statisticsStart||s.date>=book.statisticsStart)&&(period==='all'||s.date>=cutoff.toISOString().slice(0,10))).map(s=>({date:s.date,time:chartTime(s.date),value:Object.entries(s.investmentTotals??{}).reduce((n,[c,v])=>n+convert(v,c,base,s.rates??ratesAt(book,s.date)),0)}));
+ return <section className="panel trend-panel" style={{'--curve-color':'#6e8fb7'} as React.CSSProperties}><div className="panel-heading"><h2>投资资金</h2><Tabs value={period} onValueChange={setPeriod}><TabsList><TabsTrigger value="1m">1个月</TabsTrigger><TabsTrigger value="6m">6个月</TabsTrigger><TabsTrigger value="all">全部</TabsTrigger></TabsList></Tabs></div><div className="trend-chart">
   {trend.length>0&&!hidden?<ResponsiveContainer width="100%" height="100%" minWidth={0} initialDimension={{width:300,height:280}}><AreaChart data={trend} margin={{top:15,right:18,left:0,bottom:10}}>
    <defs><linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6e8fb7" stopOpacity={.22}/><stop offset="100%" stopColor="#6e8fb7" stopOpacity={.015}/></linearGradient></defs>
    {chartEndpointTicks(trend.map(point=>point.value)).map(value=><ReferenceLine className="chart-endpoint-guide" key={'y-'+value} y={value} zIndex={50} stroke="#d5dde8" strokeWidth={1} strokeDasharray="3 6"/>)}
-   <XAxis height={42} tickMargin={16} padding={{left:10,right:8}} dataKey="time" type="number" scale="time" domain={['dataMin','dataMax']} ticks={chartEndpointTicks(trend.map(point=>point.time))} tickFormatter={chartMonth} axisLine={false} tickLine={false} tick={{fill:'#66758c',fontSize:11}} interval={0}/><YAxis width={72} tickMargin={14} axisLine={false} tickLine={false} tick={{fill:'#66758c',fontSize:11}} tickFormatter={chartAmount} domain={chartBounds(trend.map(point=>point.value))} ticks={chartEndpointTicks(trend.map(point=>point.value))} interval={0}/><Tooltip cursor={false} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} labelFormatter={value=>chartDate(Number(value))} formatter={v=>hidden?'••••••':money(Number(v),base)}/><Area isAnimationActive={false} type="monotone" dataKey="value" name="总资产" stroke="#6e8fb7" strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round" animationDuration={650} fill="url(#areaFill)" dot={({cx,cy,index})=>index===0||index===trend.length-1?<ChartEndpoint key={index} cx={cx} cy={cy} color="#6e8fb7"/>:<g key={index}/>} activeDot={{r:5,fill:'#6e8fb7',stroke:'white',strokeWidth:2.5}}/>
+   <XAxis height={42} tickMargin={16} padding={{left:10,right:8}} dataKey="time" type="number" scale="time" domain={['dataMin','dataMax']} ticks={chartEndpointTicks(trend.map(point=>point.time))} tickFormatter={chartMonth} axisLine={false} tickLine={false} tick={{fill:'#66758c',fontSize:11}} interval={0}/><YAxis width={72} tickMargin={14} axisLine={false} tickLine={false} tick={{fill:'#66758c',fontSize:11}} tickFormatter={chartAmount} domain={chartBounds(trend.map(point=>point.value))} ticks={chartEndpointTicks(trend.map(point=>point.value))} interval={0}/><Tooltip cursor={false} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} labelFormatter={value=>chartDate(Number(value))} formatter={v=>hidden?'••••••':money(Number(v),base)}/><Area isAnimationActive={false} type="monotone" dataKey="value" name="总投资" stroke="#6e8fb7" strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round" animationDuration={650} fill="url(#areaFill)" dot={({cx,cy,index})=>index===0||index===trend.length-1?<ChartEndpoint key={index} cx={cx} cy={cy} color="#6e8fb7"/>:<g key={index}/>} activeDot={{r:5,fill:'#6e8fb7',stroke:'white',strokeWidth:2.5}}/>
   </AreaChart></ResponsiveContainer>:<div className="empty-inline"><TrendingUp size={26}/><p>{hidden?'金额已隐藏':'暂无趋势数据'}</p></div>}
  </div></section>;
 }

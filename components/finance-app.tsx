@@ -1,6 +1,8 @@
 'use client';
+import ClassificationForm from './finance-classification';
+import RecordEditForm from './finance-record-edit';
 import {useState,useEffect,useRef,useMemo} from 'react';
-import {financeRequest as fetch} from '@/src/cache';
+import {financeRequest as fetch,exportBrowserCaches} from '@/src/cache';
 import type {RateDraft} from '@/lib/exchange';
 import {Compass,LayoutDashboard,Wallet,History,Settings2,Plus,Download,ShieldCheck,Eye,EyeOff,Upload,RefreshCw,Globe2,Building2,Cloud} from 'lucide-react';
 import {SidebarProvider,Sidebar,SidebarHeader,SidebarContent,SidebarFooter,SidebarMenu,SidebarMenuItem,SidebarMenuButton,SidebarTrigger} from '@/components/ui/sidebar';
@@ -26,22 +28,25 @@ function download(name:string,text:string,type:string){const url=URL.createObjec
 
 export default function FinanceApp({onLogout}:{onLogout:()=>void}){
  const [book,setBook]=useState<Book>(emptyBook),[version,setVersion]=useState(0),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[loadError,setLoadError]=useState(''),[signIn,setSignIn]=useState('');
+ const [sidebarOpenMobile,setSidebarOpenMobile]=useState(false);
  const [page,setPage]=useState('overview'),[assetTab,setAssetTab]=useState('holdings'),[base,setBase]=useState('CNY'),[hidden,setHidden]=useState(false);
  const [updateFilter,setUpdateFilter]=useState<{date:string;status:UpdateStatus}>({date:'',status:'all'});
  const updateHistory=useMemo(()=>assetUpdateHistory(book),[book]);
  const updateDate=updateHistory.dates.includes(updateFilter.date)?updateFilter.date:updateHistory.dates[0]??'';
 
- const [modal,setModal]=useState<'asset'|'import'|'trade'|null>(null),[editing,setEditing]=useState<Asset|undefined>(),[remove,setRemove]=useState<Asset|null>(null),[iconAsset,setIconAsset]=useState<Asset|null>(null);
- const [sync,setSync]=useState<FeishuStatus>({}),[syncBusy,setSyncBusy]=useState(false);
+ const [modal,setModal]=useState<'asset'|'import'|'trade'|'classify'|'record'|null>(null),[editing,setEditing]=useState<Asset|undefined>(),[remove,setRemove]=useState<Asset|null>(null),[iconAsset,setIconAsset]=useState<Asset|null>(null);
+ const [editingRecord,setEditingRecord]=useState<string|null>(null);
+ const [sync,setSync]=useState<FeishuStatus>({});
+ const [saveError,setSaveError]=useState(''),[saveState,setSaveState]=useState<'idle'|'saving'|'saved'|'failed'>('idle');
  const lock=useRef(false),live=useRef({book,base});live.current={book,base};
  const view=useRef({version,page,modal,iconAsset,remove,ready});view.current={version,page,modal,iconAsset,remove,ready};
  const loadSequence=useRef(0),loading=useRef(false);
  const [rateDraft,setRateDraft]=useState<RateDraft|null>(null);
  const draftHydrated=useRef(false),draftWrites=useRef<Promise<boolean>>(Promise.resolve(true));
- const settingsDirty=!!rateDraft;
  function changeRateDraft(draft:RateDraft){
+  const shownVersion=version;
   setRateDraft(draft);
-  draftWrites.current=draftWrites.current.then(async()=>{try{const response=await fetch('/api/rate-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({draft})});const result=await response.json() as {error?:string};if(!response.ok)throw Error(result.error||'汇率输入缓存失败');return true;}catch(error){toast.error((error as Error).message);return false;}});
+  draftWrites.current=draftWrites.current.then(async()=>{try{const response=await fetch('/api/rate-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:shownVersion,draft})});const result=await response.json() as {error?:string};if(!response.ok)throw Error(result.error||'汇率输入缓存失败');return true;}catch(error){toast.error((error as Error).message);return false;}});
  }
 
  async function load(initial=false,remote=false,quiet=false){
@@ -65,49 +70,58 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
   if(!context?.registerTool)return;
   const lifecycle=new AbortController();
   const tools=[
-   {name:'get_asset_summary',title:'查看资产汇总',description:'读取飞书数据与待上传缓存的资产汇总。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>{const current=live.current;return {base:current.base,total:total(current.book.assets,current.base,current.book.rates),assetCount:current.book.assets.length,platforms:[...new Set(current.book.assets.map(asset=>asset.platform))],currencies:[...new Set(current.book.assets.map(asset=>asset.currency))]};}},
+   {name:'get_asset_summary',title:'查看资产汇总',description:'读取当前显示的NAS账本资产汇总。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>{const current=live.current;return {base:current.base,total:total(current.book.assets,current.base,current.book.rates),assetCount:current.book.assets.length,platforms:[...new Set(current.book.assets.map(asset=>asset.platform))],currencies:[...new Set(current.book.assets.map(asset=>asset.currency))]};}},
    {name:'open_asset_entry',title:'打开资产录入',description:'进入全部资产并打开添加资产表单，由用户填写并确认保存。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false},execute:(input:unknown)=>{if(input&&Object.keys(input as object).length)throw new Error('此工具不接受参数');setPage('assets');setIconAsset(null);setRemove(null);setEditing(undefined);setModal('asset');return {formOpened:true,saved:false};}}
   ];
   for(const tool of tools){try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}}
   return ()=>lifecycle.abort();
  },[]);
- async function save(action:Action):Promise<boolean>{
+ async function save(action:Action,context?:{assetBase?:Asset}):Promise<boolean>{
   if(action.type==='rates'&&!await draftWrites.current)return false;
-  if(lock.current)return false;lock.current=true;setBusy(true);
+  if(lock.current)return false;lock.current=true;setBusy(true);setSaveError('');setSaveState('saving');
   try{
    if(!ready)throw new Error('请先重新加载账本');
-   if(page!=='assets'&&page!=='settings')throw new Error('请在全部资产或设置中操作');
-   const response=await fetch('/api/book',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version,action})});
+   if(page!=='assets'&&page!=='settings'&&!(page==='records'&&action.type==='recordEdit'))throw new Error('请在对应页面操作');
+   const response=await fetch('/api/ledger/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version,action,assetBase:context?.assetBase})});
    const result=await response.json() as {book:Book;version:number;ready?:boolean;rateDraft?:RateDraft|null;sync?:FeishuStatus;error?:string};
-   if(!response.ok){if(response.status===409)await load();throw new Error(result.error||'保存失败');}
-   loadSequence.current++;setBook(result.book);setVersion(result.version);if(action.type==='rates')setRateDraft(result.rateDraft??null);if(result.sync)setSync(result.sync);toast.success('已缓存，点击上传后保存到飞书');return true;
-  }catch(error){toast.error((error as Error).message,{duration:7000});return false;}
+   if(!response.ok){await load();throw new Error(result.error||'保存失败');}
+   loadSequence.current++;setBook(result.book);setVersion(result.version);if(action.type==='rates')setRateDraft(result.rateDraft??null);if(result.sync)setSync(result.sync);setSaveState('saved');toast.success('已保存到NAS');return true;
+  }catch(error){setSaveError((error as Error).message);setSaveState('failed');toast.error((error as Error).message,{duration:7000});return false;}
   finally{lock.current=false;setBusy(false);}
  }
  async function syncBook(target=sync.target??''):Promise<boolean>{
   if(lock.current)return false;
   if(!await draftWrites.current)return false;
-  if(lock.current)return false;lock.current=true;setBusy(true);setSyncBusy(true);loadSequence.current++;
-  const upload=ready;
+  if(lock.current)return false;lock.current=true;setBusy(true);loadSequence.current++;
   try{
    const current=await fetch('/api/book',{cache:'no-store'}).then(response=>response.json()) as {version:number};
-   const response=await fetch(upload?'/api/feishu/upload':'/api/feishu/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target,version:current.version})});
+   const response=await fetch('/api/ledger/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target,version:current.version})});
    const result=await response.json() as {book:Book;version:number;ready?:boolean;rateDraft?:RateDraft|null;sync?:FeishuStatus;error?:string};
    if(result.sync)setSync(result.sync);
-   if(!response.ok){await load();throw new Error(result.error||'连接失败');}
+   if(!response.ok||result.sync?.error||result.sync?.warning){await load();throw new Error(result.error||result.sync?.error||result.sync?.warning||'连接失败');}
    loadSequence.current++;setBook(result.book);setVersion(result.version);setRateDraft(result.rateDraft??null);setReady(result.ready!==false);setLoadError('');if(!ready)setBase(result.book.base);
-   if(result.ready!==false)toast.success(upload?'已上传到飞书':'已读取飞书');return result.ready!==false;
-  }catch(error){toast.error((error as Error).message,{duration:7000});return false;}finally{lock.current=false;setBusy(false);setSyncBusy(false);}
+   if(result.ready!==false)toast.success('已读取NAS');return result.ready!==false;
+  }catch(error){toast.error((error as Error).message,{duration:7000});return false;}finally{lock.current=false;setBusy(false);}
  }
  const changeBase=async(value:string)=>{if(await save({type:'base',base:value}))setBase(value);};
+ async function continueSave(){
+  if(lock.current)return;lock.current=true;setBusy(true);setSaveState('saving');setSaveError('');
+  try{const response=await fetch('/api/ledger/save',{method:'POST',body:'{}'}),result=await response.json();if(!response.ok)throw Error(result.error||'保存失败，输入已保留。');loadSequence.current++;setBook(result.book);setVersion(result.version);setRateDraft(result.rateDraft??null);setSync(result.sync);setModal(null);setRemove(null);setIconAsset(null);setSaveState('saved');toast.success('已保存到NAS');}catch(error){setSaveState('failed');setSaveError((error as Error).message);toast.error((error as Error).message);}finally{lock.current=false;setBusy(false);}
+ }
+ async function reprepareUpload(){
+  if(lock.current)return;lock.current=true;setBusy(true);
+  try{if(!await draftWrites.current)throw Error('汇率输入尚未完整缓存，请先保留输入。');download('资产罗盘-保存恢复草稿.json',JSON.stringify(await exportBrowserCaches(),null,2),'application/json');const current=await fetch('/api/book').then(response=>response.json());const response=await fetch('/api/ledger/reprepare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:current.version,discardDraft:true})});const result=await response.json();if(!response.ok)throw Error(result.error||'草稿备份恢复失败。');setRateDraft(result.rateDraft??null);setSaveError('');setSaveState('idle');await load(false,true);toast.success('恢复记录已备份，已读取正式账本；请核对后重新填写。');}catch(error){toast.error((error as Error).message);}finally{lock.current=false;setBusy(false);}
+ }
  const edit=(asset?:Asset)=>{setPage('assets');setEditing(asset);setModal('asset');};
  const update=(asset:Asset)=>{setPage('assets');setEditing(asset);setModal('trade');};
+ const classify=(asset:Asset)=>{setPage('assets');setEditing(asset);setModal('classify');};
  const editIcon=(asset:Asset)=>{setPage('assets');setIconAsset(asset);};
- const navigate=(value:string)=>{setModal(null);setIconAsset(null);setRemove(null);setPage(value);};
+ const editRecord=(id:string)=>{setEditingRecord(id);setModal('record');};
+ const navigate=(value:string)=>{setSidebarOpenMobile(false);setModal(null);setIconAsset(null);setRemove(null);setPage(value);};
  const currentAsset=editing?(book.assets.find(asset=>asset.id===editing.id)??editing):undefined;
  const title=navigation.find(item=>item[0]===page)?.[1]??'设置与汇率';
 
- return <SidebarProvider style={{'--sidebar-width':'200px'} as React.CSSProperties}>
+ return <SidebarProvider openMobile={sidebarOpenMobile} onOpenMobileChange={setSidebarOpenMobile} style={{'--sidebar-width':'200px'} as React.CSSProperties}>
   <Toaster position="top-center" richColors/>
   <Sidebar className="atlas-sidebar">
    <SidebarHeader><div className="brand"><span><Compass size={25}/></span><div>资产罗盘</div></div></SidebarHeader>
@@ -120,32 +134,36 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
     <div className="heading-actions">
      <button className="icon-button" title={hidden?'显示金额':'隐藏金额'} aria-label={hidden?'显示金额':'隐藏金额'} onClick={()=>setHidden(!hidden)}>{hidden?<EyeOff size={16}/>:<Eye size={16}/>}</button>
      <button className="icon-button" title="读取最新账本" aria-label="读取最新账本" disabled={busy} onClick={()=>void load(false,true)}><RefreshCw size={15}/></button>
-     {(page==='assets'||page==='settings')&&<button className="button secondary sync-button" aria-label={syncBusy?'上传中…':'上传'} disabled={!ready||sync.configured===false||!sync.dirty&&!settingsDirty||busy||sync.syncing} onClick={()=>void syncBook()} title="将待上传缓存保存到飞书"><Upload size={15}/>{syncBusy?'上传中…':'上传'}{(sync.dirty||settingsDirty)&&<i aria-hidden="true"/>}</button>}
      {page==='assets'&&<CurrencySelect book={book} value={base} onChange={changeBase}/>}
      <button className="button secondary export-button" disabled={!ready} onClick={()=>download(`资产罗盘-${today()}.csv`,csvExport(book),'text/csv;charset=utf-8')}><Download size={15}/>导出</button>
      {page==='assets'&&<><button className="button secondary" disabled={!ready} onClick={()=>setModal('import')}><Upload size={15}/>批量录入</button>
      <button className="button primary" disabled={!ready} onClick={()=>edit()}><Plus size={17}/>添加资产</button></>}
     </div>
    </div>
-   <p className="browser-draft-note">修改保存在当前浏览器，点击“上传”后其他设备可读取。飞书数据会自动刷新。</p>
+   <p className="browser-draft-note">点击保存或确认更新后直接保存到 NAS，其他设备可读取。尚未确认的输入保留在当前浏览器。{!!sync.archivedDrafts&&<> 旧来源草稿仍保留：<button className="text-button" onClick={()=>void exportBrowserCaches().then(value=>download('资产罗盘-浏览器旧草稿.json',JSON.stringify(value,null,2),'application/json')).catch(error=>toast.error((error as Error).message))}>下载旧草稿备份</button>。</>}</p>
+   {saveState==='saving'&&<p className="browser-draft-note" role="status">正在保存到 NAS…</p>}{saveState==='saved'&&<p className="browser-draft-note" role="status">上次确认已保存到 NAS。</p>}
+   {saveError&&<div className="connection-notice" role="alert"><span>保存失败，输入已保留。{saveError}</span></div>}
+   {sync.canReprepare&&<p className="browser-draft-note">{sync.warning} {sync.canRetrySave&&<button className="text-button" disabled={busy} onClick={()=>void continueSave()}>继续上次保存</button>} 可<button className="text-button" disabled={busy} onClick={()=>void reprepareUpload()}>备份并读取正式账本</button>，再核对重填。</p>}
    {loadError&&<div className="connection-notice" role="alert"><span>{loadError}</span>{signIn?<a href={signIn}>登录并连接账本</a>:<button onClick={()=>void load(false)}>重新加载账本</button>}</div>}
-   {!ready&&<section className="panel empty-inline" role="status"><Cloud size={24}/><p>{sync.configured===false?'请在 Render 中配置飞书环境变量后读取账本':'正在读取飞书数据…'}</p></section>}
+   {!ready&&<section className="panel empty-inline" role="status"><Cloud size={24}/><p>{sync.configured===false?'请在 NAS 中配置数据库环境变量后读取账本':'正在读取NAS数据…'}</p></section>}
    {!ready&&(page==='settings'||!!sync.error||sync.configured===false)&&<FeishuConnection status={sync} busy={busy} onSync={syncBook}/>}
    {ready&&<>
    {page==='overview'&&<Overview book={book} base={base} hidden={hidden}/>}
    {page==='assets'&&<>
     <Tabs value={assetTab} onValueChange={setAssetTab} className="asset-page-tabs"><TabsList><TabsTrigger value="holdings">资产明细</TabsTrigger><TabsTrigger value="earnings">收益明细</TabsTrigger><TabsTrigger value="updates">更新记录</TabsTrigger></TabsList></Tabs>
-    {assetTab==='updates'?<><UpdateDates history={updateHistory} date={updateDate} status={updateFilter.status} onSelect={(date,status)=>setUpdateFilter({date,status})}/><AssetView book={book} base={base} filter={{}} updateFilter={{date:updateDate,status:updateFilter.status}} onClearUpdate={()=>setUpdateFilter({date:updateDate,status:'all'})} showSummary={false} onEdit={edit} onUpdate={update} onIcon={editIcon} hidden={hidden}/></>:assetTab==='holdings'?<AssetView book={book} base={base} filter={{}} onEdit={edit} onUpdate={update} onIcon={editIcon} hidden={hidden}/>:<InvestmentWorkspace book={book} base={base} hidden={hidden} onIcon={editIcon}/>}
+    {assetTab==='updates'?<><UpdateDates history={updateHistory} date={updateDate} status={updateFilter.status} onSelect={(date,status)=>setUpdateFilter({date,status})}/><AssetView book={book} base={base} filter={{}} updateFilter={{date:updateDate,status:updateFilter.status}} onClearUpdate={()=>setUpdateFilter({date:updateDate,status:'all'})} showSummary={false} onEdit={edit} onUpdate={update} onClassify={classify} onIcon={editIcon} hidden={hidden}/></>:assetTab==='holdings'?<AssetView book={book} base={base} filter={{}} onEdit={edit} onUpdate={update} onClassify={classify} onIcon={editIcon} hidden={hidden}/>:<InvestmentWorkspace book={book} base={base} hidden={hidden} onIcon={editIcon}/>}
    </>}
    {page==='currencies'&&<GroupedAssetView book={book} base={base} kind="currency" hidden={hidden}/>}
    {page==='platforms'&&<GroupedAssetView book={book} base={base} kind="platform" hidden={hidden}/>}
-   {page==='records'&&<RecordView book={book} hidden={hidden}/>}
+   {page==='records'&&<RecordView book={book} hidden={hidden} onEdit={editRecord}/>}
    {page==='settings'&&<SettingsView book={book} onSave={save} busy={busy} sync={sync} onSync={syncBook} draft={rateDraft} onDraftChange={changeRateDraft} onBackup={()=>download(`资产罗盘-完整备份-${today()}.json`,JSON.stringify({format:'finance-atlas',version:1,exportedAt:new Date().toISOString(),book},null,2),'application/json')}/>}
    </>}
-   <footer className="page-footer"><span title={sync.error||sync.warning||undefined}>{sync.linked?<Cloud size={13}/>:<ShieldCheck size={13}/>} {sync.configured===false?(ready?'服务端待配置 · 显示缓存':'服务端待配置'):!ready?'正在读取飞书…':sync.error?'读取飞书失败 · 显示缓存':sync.warning?'飞书上传待完成 · 显示缓存':sync.dirty?'飞书账本 · 有待上传缓存':'飞书账本 · 已读取'}</span>{ready&&book.rateDate&&<span>汇率日期 · {book.rateDate}</span>}</footer>
+   <footer className="page-footer"><span title={sync.error||sync.warning||undefined}>{sync.linked?<Cloud size={13}/>:<ShieldCheck size={13}/>} {sync.configured===false?(ready?'服务端待配置 · 显示缓存':'服务端待配置'):!ready?'正在读取NAS…':sync.error?'NAS读取或保存失败 · 输入已保留':sync.canRetrySave?'NAS保存待完成 · 输入已保留':sync.dirty?'NAS账本 · 有未确认输入':'NAS账本 · 已读取'}</span>{ready&&book.rateDate&&<span>汇率日期 · {book.rateDate}</span>}</footer>
   </div></main>
+  {page==='records'&&modal==='record'&&editingRecord&&<RecordEditForm key={editingRecord} book={book} id={editingRecord} busy={busy} onSave={save} onClose={()=>setModal(null)}/>}
   {page==='assets'&&modal==='trade'&&currentAsset&&<TradeForm book={book} asset={currentAsset} busy={busy} onSave={save} onEdit={()=>setModal('asset')} onClose={()=>setModal(null)}/>}
-  {page==='assets'&&modal==='asset'&&<AssetForm book={book} asset={currentAsset} onRemove={setRemove} onClose={()=>setModal(null)} onSave={save} busy={busy}/>}
+  {page==='assets'&&modal==='classify'&&currentAsset&&<ClassificationForm book={book} asset={currentAsset} busy={busy} onSave={save} onClose={()=>setModal(null)}/>}
+  {page==='assets'&&modal==='asset'&&<AssetForm book={book} asset={currentAsset} onClassify={()=>currentAsset&&classify(currentAsset)} onRemove={setRemove} onClose={()=>setModal(null)} onSave={save} busy={busy}/>}
   {page==='assets'&&modal==='import'&&<ImportForm book={book} onClose={()=>setModal(null)} onSave={save} busy={busy}/>}
   {page==='assets'&&iconAsset&&<IconForm asset={book.assets.find(asset=>asset.id===iconAsset.id)??iconAsset} busy={busy} onSave={save} onClose={()=>setIconAsset(null)}/>}
   <AlertDialog open={page==='assets'&&!!remove} onOpenChange={value=>!value&&!busy&&setRemove(null)}><AlertDialogContent>

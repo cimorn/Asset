@@ -1,4 +1,5 @@
 import type {Book,RecordEntry} from './finance.ts';
+import {accountClassification} from './capital-accounts.ts';
 export type RatePoint={date:string;rates:Record<string,number>;source:string};
 export type RateDraft={date:string;rates:Record<string,string>};
 const rounded=(n:number)=>Math.round((n+Number.EPSILON)*100)/100;
@@ -21,10 +22,18 @@ export function hasConfirmedRates(book:Book,date:string){
  return !!point&&point.rates.CNY===1&&Object.keys(book.rates).every(code=>Number.isFinite(point.rates[code])&&point.rates[code]>0);
 }
 export function latestDate(book:Book){return [...book.assets.map(a=>a.date),...book.records.map(r=>r.date),...book.snapshots.map(s=>s.date),book.rateDate,book.statisticsStart??''].filter(Boolean).sort().at(-1)??'';}
-export function operationDate(book:Book,date:string,today:string){
+export function savedRateDates(book:Book){
+ const current=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ return rateHistory(book).map(point=>point.date).filter(date=>date<=current&&(!book.statisticsStart||date>=book.statisticsStart)&&hasConfirmedRates(book,date));
+}
+export function valuationDates(book:Book,assetId:string){
+ const first=book.records.filter(record=>record.assetId===assetId).map(record=>record.date).sort()[0];
+ return savedRateDates(book).filter(date=>!first||date>=first);
+}
+export function operationDate(book:Book,date:string,today:string,allowHistorical=false){
  exactDate(date);if(date>today)throw new Error('操作日期不能晚于今天');
  if(book.statisticsStart&&date<book.statisticsStart)throw new Error('操作日期不能早于统计起点');
- if(date<latestDate(book))throw new Error('请按时间顺序记录，操作日期不能早于最近一次更新');
+ if(!allowHistorical&&date<latestDate(book))throw new Error('请按时间顺序记录，操作日期不能早于最近一次更新');
  return date;
 }
 export function setRatePoint(book:Book,rates:Record<string,number>,date:string,source:string){
@@ -43,9 +52,9 @@ export function recordRate(book:Book,record:RecordEntry){return record.exchangeR
 export function stampRecord(book:Book,record:RecordEntry){
  const rate=recordRate(book,record);record.exchangeRate=rate;record.valueCny=rounded(record.after*rate);
  if(record.settlement===undefined&&['转入','收入','卖出到账','消费','支出','买入扣款','存入','取出','转账转入','转账转出'].includes(record.type))record.settlement=record.after-record.before;
- if(record.settlement!==undefined)record.settlementCny=rounded(record.settlement*rate);
+ if(record.settlement!==undefined)record.settlementCny=rounded(record.fundingAmount!==undefined&&record.fundingCurrency?Math.sign(record.settlement)*record.fundingAmount*ratesAt(book,record.date)[record.fundingCurrency]:record.settlement*rate);
 }
 export function capturePortfolio(book:Book,date:string){
- const totals:Record<string,number>={};for(const asset of book.assets)totals[asset.currency]=(totals[asset.currency]??0)+asset.value;
- book.snapshots=[...book.snapshots.filter(s=>s.date!==date),{date,totals,rates:ratesAt(book,date)}].sort((a,b)=>a.date.localeCompare(b.date));
+ const totals:Record<string,number>={},investmentTotals:Record<string,number>={};for(const asset of book.assets){totals[asset.currency]=(totals[asset.currency]??0)+asset.value;if(accountClassification(asset)!=='现金')investmentTotals[asset.currency]=(investmentTotals[asset.currency]??0)+asset.value;}
+ book.snapshots=[...book.snapshots.filter(s=>s.date!==date),{date,totals,investmentTotals,rates:ratesAt(book,date)}].sort((a,b)=>a.date.localeCompare(b.date));
 }

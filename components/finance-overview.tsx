@@ -10,6 +10,6 @@ export default function Overview({book,base,hidden}:{book:Book;base:string;hidde
  return <>
   <PortfolioSummary book={book} base={base} hidden={hidden}/>
   <div className="overview-main-curves"><AssetTrend book={book} base={base} hidden={hidden}/><IncomeCurve book={book} history={history} hidden={hidden} kind="total"/></div>
-  <div className="overview-classification-curves">{(['股票','黄金','基金','虚拟币'] as const).map(kind=><IncomeCurve book={book} history={history} hidden={hidden} kind={kind} key={kind}/>)}</div>
+  <div className="overview-classification-curves">{(['股票','黄金','虚拟币'] as const).map(kind=><IncomeCurve book={book} history={history} hidden={hidden} kind={kind} key={kind}/>)}</div>
  </>;
 }

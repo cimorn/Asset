@@ -4,7 +4,7 @@ import {ratesAt,recordRate,stampRecord,capturePortfolio,latestDate} from './exch
 import {accountClassification,assetAccountKey,changeCapital,capitalAccounts} from './capital-accounts.ts';
 export type InvestmentAccount={assetId:string;name:string;code:string;platform:string;currency:string;category:string;classification?:string;basis:number;realized:number;value:number;invested?:number;proceeds?:number;quantity?:number|null;unitPrice?:number|null;startedAt:string;baseline:'cost'|'value'};
 export type GainCategory='股票'|'黄金'|'基金'|'债券'|'虚拟币';
-export type GainSnapshot={date:string;totals:Record<string,number>;categories?:Partial<Record<GainCategory,Record<string,number>>>;rates?:Record<string,number>;cnyTotal?:number;cnyCategories?:Partial<Record<GainCategory,number>>;cnyInvested?:number;cnyInvestedCategories?:Partial<Record<GainCategory,number>>};
+export type GainSnapshot={date:string;totals:Record<string,number>;categories?:Partial<Record<GainCategory,Record<string,number>>>;rates?:Record<string,number>;cnyTotal?:number;cnyInvestmentTotal?:number;cnyInvestmentCost?:number;cnyCategories?:Partial<Record<GainCategory,number>>;cnyInvested?:number;cnyInvestedCategories?:Partial<Record<GainCategory,number>>};
 export type TradeAction={type:'trade';id:string;kind:'buy'|'sell'|'sellAll'|'value';amount?:number;value?:number;cost?:number;quantity?:number;unitPrice?:number;fee?:number;cashId?:string;newCash?:{balance:number};note?:string;date?:string;exchangeRate?:number};
 export type PositionAction={type:'position';id:string;quantity:number;unitPrice:number;cost:number};
 export const roundMoney=(n:number)=>Math.round((n+Number.EPSILON)*100)/100;
@@ -55,26 +55,32 @@ export function gainCategory(classification:string):GainCategory|undefined{
 }
 export function gainBreakdown(book:Book){
  const totals:Record<string,number>={},categories:Record<GainCategory,Record<string,number>>={股票:{},黄金:{},基金:{},债券:{},虚拟币:{}};
- let cnyTotal=0,cnyInvested=0;const cnyCategories:Record<GainCategory,number>={股票:0,黄金:0,基金:0,债券:0,虚拟币:0},cnyInvestedCategories:Record<GainCategory,number>={股票:0,黄金:0,基金:0,债券:0,虚拟币:0};
+ let cnyTotal=0,cnyInvested=0,cnyInvestmentTotal=0,cnyInvestmentCost=0;const cnyCategories:Record<GainCategory,number>={股票:0,黄金:0,基金:0,债券:0,虚拟币:0},cnyInvestedCategories:Record<GainCategory,number>={股票:0,黄金:0,基金:0,债券:0,虚拟币:0};
  // Remaining balances carry their manual classification even on a device with no archived accounts.
- if(book.capitalAccounts||book.ledgerAuthority&&book.records.some(record=>record.type==='剩余')){
+ if(book.capitalAccounts||book.ledgerAuthority){
   for(const account of capitalAccounts(book)){
    const value=book.assets.filter(asset=>asset.platform===account.platform&&accountClassification(asset)===account.classification&&asset.currency===account.currency).reduce((sum,asset)=>sum+asset.value,0);
    const gain=roundMoney(value-account.cost),gainCny=roundMoney(value*(book.rates[account.currency]??1)-account.costCny),category=gainCategory(account.classification);
    totals[account.currency]=roundMoney((totals[account.currency]??0)+gain);
+   if(account.classification!=='现金'){cnyInvestmentTotal=roundMoney(cnyInvestmentTotal+gainCny);cnyInvestmentCost=roundMoney(cnyInvestmentCost+account.costCny);}
    cnyTotal=roundMoney(cnyTotal+gainCny);cnyInvested=roundMoney(cnyInvested+account.costCny);
    if(category){categories[category][account.currency]=roundMoney((categories[category][account.currency]??0)+gain);cnyCategories[category]=roundMoney(cnyCategories[category]+gainCny);cnyInvestedCategories[category]=roundMoney(cnyInvestedCategories[category]+account.costCny);}
   }
-  return {totals,categories,cnyTotal,cnyCategories,cnyInvested,cnyInvestedCategories,rates:{...book.rates}};
+  return {totals,categories,cnyTotal,cnyInvestmentTotal,cnyInvestmentCost,cnyCategories,cnyInvested,cnyInvestedCategories,rates:{...book.rates}};
  }
  for(const row of investmentRows(book).filter(a=>a.known)){
   totals[row.currency]=roundMoney((totals[row.currency]??0)+row.gain);
   const category=gainCategory(row.classification??defaultClassification(row.category));
+  if((row.classification??defaultClassification(row.category))!=='现金'){cnyInvestmentTotal=roundMoney(cnyInvestmentTotal+row.gainCny);cnyInvestmentCost=roundMoney(cnyInvestmentCost+row.netCostCny);}
   if(category)categories[category][row.currency]=roundMoney((categories[category][row.currency]??0)+row.gain);
   cnyTotal=roundMoney(cnyTotal+row.gainCny);cnyInvested=roundMoney(cnyInvested+row.investedCny);
   if(category){cnyCategories[category]=roundMoney(cnyCategories[category]+row.gainCny);cnyInvestedCategories[category]=roundMoney(cnyInvestedCategories[category]+row.investedCny);}
  }
- return {totals,categories,cnyTotal,cnyCategories,cnyInvested,cnyInvestedCategories,rates:{...book.rates}};
+ return {totals,categories,cnyTotal,cnyInvestmentTotal,cnyInvestmentCost,cnyCategories,cnyInvested,cnyInvestedCategories,rates:{...book.rates}};
+}
+export function investmentReturn(snapshot:GainSnapshot):number|null{
+ const cost=snapshot.cnyInvestmentCost,gain=snapshot.cnyInvestmentTotal;
+ return cost!==undefined&&cost>0&&gain!==undefined?gain/cost*100:null;
 }
 /** Percentage of historical gross purchases; selling never shrinks the denominator. */
 export function gainReturn(snapshot:GainSnapshot,category:GainCategory):number|null{

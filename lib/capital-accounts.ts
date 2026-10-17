@@ -2,6 +2,7 @@ import type {Asset,Book} from './finance.ts';
 import {assetClassification} from './classification.ts';
 import {investmentRows,roundMoney} from './investing.ts';
 import {ratesAt} from './exchange.ts';
+import {recordDisplay} from './record-display.ts';
 
 export type CapitalAccount={key:string;platform:string;classification:string;currency:string;cost:number;costCny:number};
 export type CapitalMovement={id:string;key:string;date:string;amount:number;amountCny:number};
@@ -10,9 +11,11 @@ export function accountKey(platform:string,classification:string,currency:string
 export function assetAccountKey(asset:Asset){return accountKey(asset.platform,accountClassification(asset),asset.currency);}
 
 function balanceNetInput(book:Book,asset:Asset){
- const records=book.records.filter(record=>record.assetId===asset.id);
- const principal=book.ledgerAuthority&&records.length?records.reduce((sum,record)=>sum+(record.remainingMode==='更新市值'?0:record.after-record.before),0):asset.value;
- const basis=book.ledgerAuthority&&records.length?records.reduce((sum,record)=>sum+(record.remainingMode==='更新市值'?0:record.after-record.before)*ratesAt(book,record.date)[record.currency],0):asset.value*(book.rates[asset.currency]??1);
+ const records=book.records.map((record,index)=>({record,index})).filter(item=>item.record.assetId===asset.id).sort((a,b)=>a.record.date.localeCompare(b.record.date)||(a.record.order??-a.index)-(b.record.order??-b.index));
+ // A neutral first balance is an opening input; later neutral records only replace its valuation.
+ const inputs=records.filter(({record},index)=>record.remainingMode!=='更新市值'&&(index===0||recordDisplay(record).direction!=='neutral')).map(item=>item.record);
+ const principal=book.ledgerAuthority&&records.length?inputs.reduce((sum,record)=>sum+record.after-record.before,0):asset.value;
+ const basis=book.ledgerAuthority&&records.length?inputs.reduce((sum,record)=>sum+(record.fundingAmount!==undefined?record.settlementCny??0:(record.after-record.before)*ratesAt(book,record.date)[record.currency]),0):asset.value*(book.rates[asset.currency]??1);
  return {netInput:roundMoney(principal),netInputCny:roundMoney(basis)};
 }
 
@@ -63,12 +66,12 @@ export function capitalAccounts(book:Book):CapitalAccount[]{
 export function ensureCapitalAccounts(book:Book){if(!book.ledgerAuthority&&!book.capitalBase){book.capitalBase=capitalAccounts(book).map(row=>({...row}));book.capitalMovements=[];book.capitalBaseDate=[...book.assets.map(asset=>asset.date),...book.records.map(record=>record.date),book.rateDate].filter(Boolean).sort().at(-1)??'';}book.capitalAccounts=capitalAccounts(book);return book.capitalAccounts;}
 export function changeCapital(book:Book,asset:Asset,delta:number,date:string,id?:string){
  if(book.ledgerAuthority)return;
- ensureCapitalAccounts(book);const key=assetAccountKey(asset);
- book.capitalMovements!.push({id:id?`capital-${id}`:crypto.randomUUID(),key,date,amount:roundMoney(delta),amountCny:roundMoney(delta*(book.rates[asset.currency]??1))});
+ ensureCapitalAccounts(book);const key=assetAccountKey(asset),rate=ratesAt(book,date)[asset.currency]??1;
+ book.capitalMovements!.push({id:id?`capital-${id}`:crypto.randomUUID(),key,date,amount:roundMoney(delta),amountCny:roundMoney(delta*rate)});
  const accounts=book.capitalAccounts!;
  let row=accounts.find(item=>item.key===key);
  if(!row){row={key,platform:asset.platform,classification:accountClassification(asset),currency:asset.currency,cost:0,costCny:0};accounts.push(row);}
  row.cost=roundMoney(row.cost+delta);
- row.costCny=roundMoney(row.costCny+delta*(book.rates[asset.currency]??1));
+ row.costCny=roundMoney(row.costCny+delta*rate);
  return row;
 }

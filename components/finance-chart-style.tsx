@@ -1,5 +1,5 @@
-export const chartTooltipStyle={border:'1px solid #e5eaf1',borderRadius:12,background:'rgba(255,255,255,.98)',boxShadow:'0 8px 28px #24375114',padding:'12px 15px',fontSize:12,lineHeight:1.7};
-export const chartTooltipLabelStyle={color:'#8591a1',fontSize:11,marginBottom:4};
+export const chartTooltipStyle={border:'1px solid #e5eaf1',borderRadius:12,background:'rgba(255,255,255,.98)',boxShadow:'0 8px 28px #24375114',padding:'12px 15px',fontSize:13,lineHeight:1.7,maxWidth:'calc(100vw - 56px)',whiteSpace:'normal'};
+export const chartTooltipLabelStyle={color:'#8591a1',fontSize:12,marginBottom:4};
 
 export function ChartEndpoint({cx,cy,color}:{cx?:number;cy?:number;color:string}){
  if(cx==null||cy==null)return null;

@@ -18,10 +18,11 @@ const obsoleteTypes=name=>name==='类别'?[1,3,20]:(obsoleteFormulaFields.has(na
 const fieldProperty=(type,name)=>type===2?{property:{formatter:name==='兑人民币汇率'?'0.0000':'0.00'}}:type===3?{property:{options:(name==='剩余方式'?['转入','转出','消费','更新市值']:name==='类别'?categories:defaultClassifications).map(name=>({name}))}}:{};
 const fail=message=>Object.assign(new Error(message),{safe:true});
 function errorFor(error){if(error?.safe)return error;const code=/^[A-Za-z0-9_-]{1,40}$/.test(String(error?.code??''))?String(error.code):'';return Object.assign(new Error('飞书请求失败'+(code?'（'+code+'）':'')+'，待上传缓存已保留。'),{safe:true,code:error?.code});}
-export function createFeishuService(dataDir,{clientFactory,credentialStore=createCredentialStore()}={}){
+export function createFeishuService(dataDir,{clientFactory,credentialStore=createCredentialStore(),volatile=false}={}){
  const file=name=>path.join(dataDir,name),connectionPath=file('feishu-connection.json');let active=false,clientPromise;
- async function readJson(target,fallback={}){try{return JSON.parse(await readFile(target,'utf8'));}catch(e){if(e.code==='ENOENT')return fallback;throw fail('同步配置无法读取，飞书缓存已保留。');}}
- async function persist(target,value){await mkdir(dataDir,{recursive:true});const temp=target+'.tmp';await writeFile(temp,JSON.stringify(value),'utf8');await rename(temp,target);}
+ const memory=new Map();
+ async function readJson(target,fallback={}){if(volatile)return structuredClone(memory.get(target)??fallback);try{return JSON.parse(await readFile(target,'utf8'));}catch(e){if(e.code==='ENOENT')return fallback;throw fail('同步配置无法读取，飞书缓存已保留。');}}
+ async function persist(target,value){if(volatile){memory.set(target,structuredClone(value));return;}await mkdir(dataDir,{recursive:true});const temp=target+'.tmp';await writeFile(temp,JSON.stringify(value),'utf8');await rename(temp,target);}
  const connection=()=>readJson(connectionPath);
  async function configured(){return clientFactory?true:(await credentialStore.status()).configured;}
  async function configure(target){
@@ -126,6 +127,7 @@ export function createFeishuService(dataDir,{clientFactory,credentialStore=creat
   for(let i=0;i<updates.length;i+=100)await client.request(endpoint+'/batch_update',{method:'POST',body:{records:updates.slice(i,i+100)}});if(kind==='records')creates.reverse();for(let i=0;i<creates.length;i+=100){const hash=digest(creates.slice(i,i+100)),token=hash.slice(0,8)+'-'+hash.slice(8,12)+'-4'+hash.slice(13,16)+'-8'+hash.slice(17,20)+'-'+hash.slice(20,32);await client.request(endpoint+'/batch_create',{method:'POST',query:{client_token:token},body:{records:creates.slice(i,i+100)}});}for(let i=0;i<deletes.length;i+=100)await client.request(endpoint+'/batch_delete',{method:'POST',body:{records:deletes.slice(i,i+100)}});
  }
  async function sync(book,target='',{baseBook,prepareOnly=false,recovery}={}){
+  if(volatile)throw fail('只读迁移模式禁止上传。');
   if(active)throw fail('正在同步，请稍后');active=true;let c;
   try{const resolved=await resolve(target),client=resolved.client;c=await ensureSchema(client,resolved.c);if(recovery){if(recovery.appToken!==c.appToken)throw fail('上传恢复记录属于其他账本');c.deviceId=recovery.deviceId;}else if(prepareOnly)c.deviceId=randomUUID();await persist(connectionPath,c);const pendingPath=file('feishu-upload.json'),pending=recovery??await readJson(pendingPath);const remote=await readRemote(client,c,{allowWriting:true,cachedBook:book});if(remote.marker.phase==='writing'&&remote.marker.device!==c.deviceId)throw fail(uploadMessage(remote.marker,c));let merged,before;
    if(remote.marker.phase==='writing'){if(!pending.book||pending.appToken!==c.appToken)throw fail('未找到未完成上传的本机备份，已停止覆盖');const latest=await readRemote(client,c,{allowWriting:true,decodeWriting:true,cachedBook:book});const recoveryBase=decodeRows(pending.before,pending.book,{ledgerAuthority:true});merged=applyCachedDraft(baseBook??recoveryBase,book,latest.book);before=latest.rows;await backup('before-upload-resume',{book,remote:latest.rows});await persist(pendingPath,{appToken:c.appToken,book:merged,before});}else{merged=mergeUpload(book,remote,baseBook);before=remote.rows;await backup('before-upload',{book,remote:remote.rows});await persist(pendingPath,{appToken:c.appToken,book:merged,before});}

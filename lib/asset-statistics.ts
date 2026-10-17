@@ -8,7 +8,7 @@ export function assetSummary(assets:Asset[],base:string,rates:Book['rates']){
  const native:Record<string,number>={};
  for(const asset of assets){
   const value=convert(asset.value,asset.currency,base,rates);
-  if(asset.category==='现金')cash+=value;else investment+=value;
+  if(accountClassification(asset)==='现金')cash+=value;else investment+=value;
   native[asset.currency]=(native[asset.currency]??0)+asset.value;
  }
  return {value:roundMoney(investment+cash),investment:roundMoney(investment),cash:roundMoney(cash),count:assets.length,native:Object.fromEntries(Object.entries(native).map(([currency,value])=>[currency,roundMoney(value)]))};
@@ -25,13 +25,21 @@ export function assetGroupSummaries(book:Book,base:string,kind:'classification'|
 
 export function classificationSummaries(book:Book,base:string){return assetGroupSummaries(book,base,'classification');}
 
+/** Only the user's cash classification is separate; remaining investment balances stay invested. */
+export function investmentOverview(book:Book,base:string){
+ const summary=assetSummary(book.assets.filter(asset=>accountClassification(asset)!=='现金'),base,book.rates);
+ const performance=portfolioPerformance(book,base).investment;
+ const classified=classificationSummaries(book,base).sort((a,b)=>Number(a.name==='现金')-Number(b.name==='现金')).map(group=>({...group,share:group.name==='现金'?null:summary.value?group.value/summary.value*100:0}));
+ return {summary,performance,classified};
+}
+
 type Performance={cost:number|null;gain:number|null;invested:number|null;returnRate:number|null};
 /** Capital belongs to a platform/classification/currency account, not to each trade. */
 export function portfolioPerformance(book:Book,base:string){
- const total:Performance={cost:0,gain:0,invested:0,returnRate:null},groups:Record<string,Performance>={};
+ const total:Performance={cost:0,gain:0,invested:0,returnRate:null},investment:Performance={cost:0,gain:0,invested:0,returnRate:null},groups:Record<string,Performance>={};
  function add(name:string,cost:number|null,gain:number|null,invested:number|null){
   const group=groups[name]??={cost:0,gain:0,invested:0,returnRate:null};
-  for(const sum of [group,total]){
+  for(const sum of name==='现金'?[group,total]:[group,total,investment]){
    sum.cost=sum.cost===null||cost===null?null:sum.cost+cost;
    sum.gain=sum.gain===null||gain===null?null:sum.gain+gain;
    sum.invested=sum.invested===null||invested===null?null:sum.invested+invested;
@@ -42,6 +50,6 @@ export function portfolioPerformance(book:Book,base:string){
   const valueCny=value*book.rates[account.currency];
   add(account.classification,convert(account.costCny,'CNY',base,book.rates),convert(valueCny-account.costCny,'CNY',base,book.rates),convert(account.costCny,'CNY',base,book.rates));
  }
- for(const sum of [total,...Object.values(groups)]){sum.returnRate=sum.gain!==null&&sum.invested!==null&&sum.invested>0?sum.gain/sum.invested*100:null;if(sum.cost!==null)sum.cost=roundMoney(sum.cost);if(sum.gain!==null)sum.gain=roundMoney(sum.gain);if(sum.invested!==null)sum.invested=roundMoney(sum.invested);}
- return {total,groups};
+ for(const sum of [total,investment,...Object.values(groups)]){sum.returnRate=sum.gain!==null&&sum.invested!==null&&sum.invested>0?sum.gain/sum.invested*100:null;if(sum.cost!==null)sum.cost=roundMoney(sum.cost);if(sum.gain!==null)sum.gain=roundMoney(sum.gain);if(sum.invested!==null)sum.invested=roundMoney(sum.invested);}
+ return {total,investment,groups};
 }

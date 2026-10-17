@@ -1,0 +1,53 @@
+name: asset
+services:
+  asset:
+    container_name: asset
+    image: asset:local
+    build:
+      context: ../..
+      dockerfile: deploy/nas/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    command: ["node", "server/index.mjs"]
+    depends_on:
+      mongodb-asset:
+        condition: service_healthy
+    ports:
+      - "192.168.1.107:8092:3000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  mongodb-asset:
+    container_name: mongodb-asset
+    image: mongo:7.0
+    user: "1000:10"
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_INITDB_DATABASE: asset
+    command: ["mongod", "--auth", "--wiredTigerCacheSizeGB", "0.25"]
+    volumes:
+      - type: bind
+        source: /volume1/docker/mongodb/data/asset
+        target: /data/db
+      - type: bind
+        source: /volume1/docker/asset/deploy/nas/storage-init.js
+        target: /docker-entrypoint-initdb.d/10-asset.js
+        read_only: true
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand({ping:1}).ok ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

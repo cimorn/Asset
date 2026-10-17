@@ -9,16 +9,16 @@ import {amountText,money} from './finance-dashboard';
 import {assetFinancialRows} from '@/lib/capital-accounts';
 import {Choice} from './finance-forms';
 
-type AssetActions={onEdit?:(asset:Asset)=>void;onUpdate?:(asset:Asset)=>void;onIcon?:(asset:Asset)=>void};
+type AssetActions={onClassify?:(asset:Asset)=>void;onEdit?:(asset:Asset)=>void;onUpdate?:(asset:Asset)=>void;onIcon?:(asset:Asset)=>void};
 type ListProps=AssetActions&{assets:Asset[];book:Book;base:string;hidden:boolean};
-export function AssetLedgerTable({assets,book,base,hidden,onEdit,onUpdate,onIcon}:ListProps){
+export function AssetLedgerTable({assets,book,base,hidden,onEdit,onUpdate,onIcon,onClassify}:ListProps){
  const numeric=(value:number)=>hidden?'••••••':amountText(value);
  const financials=new Map(assetFinancialRows(book).map(row=>[row.assetId,row]));
  return <Table className="asset-table"><TableHeader><TableRow>
   <TableHead>名称 / 代码</TableHead><TableHead>分类 / 平台</TableHead><TableHead className="currency-column">币种</TableHead><TableHead className="numeric">净投入</TableHead><TableHead className="numeric">市值</TableHead><TableHead className="numeric">收益</TableHead><TableHead className="numeric">折合 {base}</TableHead><TableHead>更新日期</TableHead>{onUpdate&&<TableHead>操作</TableHead>}
  </TableRow></TableHeader><TableBody>{assets.map(asset=><TableRow key={asset.id} className="currency-themed" style={currencyStyle(asset.currency)}>
   <TableCell><div className="asset-name"><AssetIcon asset={asset} onClick={onIcon?()=>onIcon(asset):undefined}/>{onEdit?<button type="button" className="asset-label" aria-label={`编辑${asset.name}资产信息`} onClick={()=>onEdit(asset)}><strong>{asset.name}</strong><small className="asset-code">{asset.code||'—'}</small></button>:<span className="asset-label"><strong>{asset.name}</strong><small className="asset-code">{asset.code||'—'}</small></span>}</div></TableCell>
-  <TableCell><span className="tag">{assetClassification(asset)}</span><small className="table-sub">{asset.platform}</small></TableCell>
+  <TableCell><button type="button" className="tag" disabled={!onClassify} aria-label={`调整${asset.name}分类`} title="调整分类" onClick={()=>onClassify?.(asset)}>{assetClassification(asset)}</button><small className="table-sub">{asset.platform}</small></TableCell>
   <TableCell className="currency-column"><span className="currency-code">{asset.currency}</span></TableCell>
   <TableCell className="numeric"><strong>{financials.get(asset.id)?.netInput!=null?numeric(financials.get(asset.id)!.netInput!):'—'}</strong></TableCell>
   <TableCell className="numeric"><strong>{numeric(asset.value)}</strong></TableCell>
@@ -48,11 +48,11 @@ function GroupSummaryTable({assets,book,base,kind,hidden}:ListProps&{kind:'curre
  </section>;
 }
 
-export function GroupedAssetDetails({assets,book,base,hidden,onEdit,onUpdate,onIcon,kind}:ListProps&{kind:'platform'|'classification'|'currency'}){
+export function GroupedAssetDetails({assets,book,base,hidden,onEdit,onUpdate,onIcon,onClassify,kind}:ListProps&{kind:'platform'|'classification'|'currency'}){
  const grouped=groups(assets,kind,base,book.rates);
  return <div className="platform-asset-details">{grouped.map(group=><section className="platform-detail-group" key={group.name}>
   <header className="asset-group-heading"><div className="asset-group-title">{kind==='platform'?<AssetIcon asset={{name:group.name,platform:group.name,category:'现金'}}/>:<span className="aggregate-icon"><Layers size={20}/></span>}<div><h2>{group.name}</h2><small>{group.count} 笔资产</small></div></div><div className="asset-group-total"><strong>{hidden?'••••••':money(group.value,base)}</strong><small>折合 {base}</small></div></header>
-  <AssetLedgerTable assets={assets.filter(asset=>(kind==='classification'?accountClassification(asset):asset[kind])===group.name)} book={book} base={base} hidden={hidden} onEdit={onEdit} onUpdate={onUpdate} onIcon={onIcon}/>
+  <AssetLedgerTable assets={assets.filter(asset=>(kind==='classification'?accountClassification(asset):asset[kind])===group.name)} book={book} base={base} hidden={hidden} onEdit={onEdit} onUpdate={onUpdate} onIcon={onIcon} onClassify={onClassify}/>
  </section>)}{!grouped.length&&<div className="empty-inline"><Wallet size={25}/><p>没有匹配的资产</p></div>}</div>;
 }
 
