@@ -1,0 +1,351 @@
+/* Softer surfaces and explicit row colors override the shared table border utilities. */
+.asset-table [data-slot="table-row"],.asset-table tr{border-color:#edf1f7!important}.asset-table thead tr{border-bottom-color:#e8edf6!important}.asset-table tbody tr{transition:background .18s;border-bottom-width:1px}.asset-table tbody tr:hover{background:#f9faff}.asset-table td{padding-top:20px;padding-bottom:20px}.asset-table th{background:#fafbfe;color:#96a1b5}.asset-table .asset-symbol{border-radius:14px;width:42px;height:42px}.asset-table .asset-name{gap:14px}.asset-table strong{font-size:12px}.asset-table .asset-code{font-family:Consolas,monospace;font-size:10px;letter-spacing:.05em;color:#9aa8ba;margin-top:6px}.asset-table .table-sub{margin-top:8px;font-size:11px}.asset-table .tag{border:0;background:#f1f4fa;padding:4px 9px;border-radius:6px}.table-actions button:first-child{background:#f0f3ff;color:#7382ce;border-radius:6px;padding:6px 12px}.panel{border-color:#e9edf5;box-shadow:0 3px 15px #44547703;border-radius:16px}.aggregate-track,.group-card-bar,.mini-segments{display:none}.group-card-foot{margin-top:23px}.view-summary{border-radius:16px}.view-summary>div{border-right:0}.page-content{max-width:1600px;margin:0 auto}.finance-dialog{min-width:0!important;overflow-x:hidden!important;border-color:#e6ebf5!important;box-shadow:0 24px 100px #17243d26!important}.finance-dialog>*{min-width:0;max-width:100%}.finance-dialog.trade-dialog{width:min(94vw,660px)!important;max-width:660px!important;padding:30px!important;border-radius:22px!important}.finance-dialog.monthly-dialog{width:min(94vw,1060px)!important;max-width:1060px!important;display:flex!important;flex-direction:column;max-height:88vh!important;border-radius:20px!important}.finance-dialog.monthly-dialog form{min-width:0;width:100%}.trade-heading{display:flex;align-items:center;gap:14px}.trade-emblem{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;color:#7986dc;background:#f0f2ff}.trade-emblem.cash{color:#65a188;background:#edf7f1}.trade-heading [data-slot=dialog-title]{font-size:20px;margin-bottom:4px}.trade-current{background:#f8faff;border-radius:12px;display:flex;gap:24px;padding:18px 20px;margin-bottom:22px}.trade-current>span{flex:1;font-size:11px;color:#919cb0}.trade-current strong{display:block;font-size:23px;letter-spacing:-.03em;color:#4c5e7a;font-weight:550;margin-top:8px;font-variant-numeric:tabular-nums}.trade-options{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:23px}.trade-options.two{grid-template-columns:repeat(2,1fr)}.trade-options button{padding:15px 7px;border:1px solid #e9edf6;border-radius:12px;text-align:center;color:#96a2b6;background:white;transition:.16s}.trade-options button>svg{margin:0 auto 9px}.trade-options strong{display:block;font-size:12px;font-weight:500;color:#74839d}.trade-options small{display:block;font-size:9px;margin-top:6px;color:#a5afbf}.trade-options button:hover{background:#fafbff;border-color:#d5dcf7}.trade-options button.selected{background:#f0f3ff;border-color:#b9c5f3;color:#7785d9;box-shadow:0 3px 9px #536de709}.trade-options button.selected strong{color:#6375c8}.trade-options button.selected small{color:#8a98c7}.trade-fields label{font-size:12px}.trade-ratio{display:flex;align-items:center;gap:8px}.trade-ratio button{padding:8px 13px;background:#f5f7fb;border-radius:7px;color:#8493ad;font-size:11px}.trade-ratio button.selected{background:#eaf0ff;color:#6b7cce}.trade-ratio input{width:80px!important}.trade-extra{margin:18px 0;color:#8c9bb2;font-size:11px}.trade-extra summary{cursor:pointer;margin-bottom:14px}.trade-extra .field-grid{background:#fafbfe;padding:15px;border-radius:10px}.trade-footnote{font-size:10px;line-height:1.9;color:#9aa6b8;margin:12px 0}.trade-preview{display:flex;gap:10px;background:#f6f9fc;border-radius:12px;padding:16px 18px;margin-top:17px}.trade-preview>span{flex:1;font-size:10px;color:#91a0b5}.trade-preview strong{display:block;font-size:16px;font-weight:500;color:#566b86;margin-top:9px;font-variant-numeric:tabular-nums}.trade-dialog .form-footer{margin-top:20px;border-top-color:#edf1f7}.trade-dialog .text-button{font-size:10px}.investment-workspace{display:flex;flex-direction:column;gap:22px}.investment-hero{display:flex;align-items:center;justify-content:space-between;padding:7px 2px 5px}.investment-hero>div>span{font-size:10px;letter-spacing:.17em;color:#98a5bf}.investment-hero h2{font-size:24px;letter-spacing:-.035em;font-weight:550;color:#425571;margin:12px 0 10px}.investment-hero p{font-size:12px;color:#95a1b6}.investment-hero-icon{height:62px;width:62px;background:#edf1ff;display:grid;place-items:center;color:#8995df;border-radius:20px}.investment-stats{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:18px}.investment-stats section{border:1px solid #e9eef6;border-radius:17px;padding:24px;background:#fff}.investment-stats section.main{background:linear-gradient(120deg,#7181dc,#98a4ed);border:0;color:#fff;box-shadow:0 9px 22px #7584d526}.investment-stats small{font-size:11px;color:#8f9eb5}.investment-stats strong{display:block;font-size:30px;font-weight:500;letter-spacing:-.035em;font-variant-numeric:tabular-nums;margin:16px 0 14px;color:#51647f}.investment-stats p{font-size:10px;line-height:1.7;color:#a0abc0}.investment-stats .main small,.investment-stats .main p{color:#e5e9ff}.investment-stats .main strong{color:#fff}.investment-curve .monthly-chart{height:250px}.operation-filters{display:flex;gap:16px;padding:0 24px 20px;align-items:center}.operation-switch{display:flex;padding:4px;border-radius:8px;background:#f4f6fb;gap:4px}.operation-switch button{font-size:11px;padding:6px 15px;color:#99a5b9;border-radius:6px}.operation-switch button.selected{background:white;color:#7686cd;box-shadow:0 2px 6px #3a52890a}.operation-cards{padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.operation-card{display:flex;gap:12px;align-items:center;padding:18px 14px;border:1px solid #edf1f7;background:#fff;border-radius:13px;text-align:left;min-width:0;transition:background .15s,box-shadow .15s}.operation-card:hover{background:#fafbff;border-color:#dbe2f7;box-shadow:0 4px 12px #566abd0a}.operation-card>.asset-symbol{flex-shrink:0}.operation-name{flex:1;min-width:0}.operation-name strong{font-size:12px;font-weight:550;color:#556681;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.operation-name small{font-size:10px;display:block;color:#a0aabf;margin-top:7px}.operation-value{text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0}.operation-value strong{display:block;font-size:13px;font-weight:500;color:#5e718e}.operation-value small{display:block;font-size:9px;color:#a0aec1;margin-top:7px}.operation-card>svg{color:#b3bed3;flex-shrink:0}.monthly-archive{margin-top:28px}.monthly-archive>summary{padding:19px 22px;background:#f5f7fc;border:1px solid #e9edf6;border-radius:12px;color:#7c8ba4;font-size:13px;cursor:pointer}.monthly-archive>summary span{margin-left:15px;font-size:10px;color:#a2acc0}.monthly-archive[open]>.monthly-stack{margin-top:20px}.monthly-entry-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}.monthly-entry-card{border:1px solid #e9eef6;background:#fff;border-radius:13px;padding:18px;min-width:0}.monthly-entry-card header{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:16px}.monthly-entry-card header strong{display:block;font-size:12px;color:#556780;font-weight:550}.monthly-entry-card header small{display:block;margin-top:6px;font-size:10px;color:#9ba8bc}.entry-confirm{display:flex;gap:5px;align-items:center;font-size:10px;color:#99a6b8;white-space:nowrap}.entry-confirm input{accent-color:#8493dc}.monthly-entry-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.monthly-entry-fields label{font-size:10px;color:#9aa7bb;min-width:0}.monthly-entry-fields input{display:block;width:100%;min-width:0;margin-top:7px;border:1px solid #e4eaf5;padding:10px 8px;border-radius:7px;font-size:12px;color:#5a6d88;outline-offset:2px}.monthly-entry-card footer{display:flex;justify-content:space-between;gap:10px;margin-top:14px;font-size:10px;color:#a2acc0}.monthly-entry-fields label:only-child{grid-column:span 3}.monthly-rates>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.monthly-rates label{min-width:0}.monthly-rates input{min-width:0;width:100%}.monthly-form-top p{min-width:0}.monthly-method{background:#fafbfe;border:0}.monthly-table th,.monthly-table td{border-color:#edf1f7}.monthly-dialog .form-footer{position:sticky;bottom:-28px;background:#fff;padding:18px 0;margin-top:18px;z-index:2}.monthly-dialog .monthly-checkbox{padding:2px 0}.monthly-shortcut strong{font-weight:550}.monthly-shortcut{border-radius:15px}
+.sidebar-guide{padding:0;border:0;background:none;margin-top:40px}.guide-button{margin-top:0}.wealth-card{padding-bottom:23px}.investment-stats strong{margin-bottom:0}.trade-current strong{font-size:20px}.trade-current{gap:15px}.trade-preview{display:grid;grid-template-columns:1fr 1fr;gap:18px}.position-summary{display:flex;gap:28px;background:#f6f8fd;border-radius:10px;padding:16px}.position-summary span{flex:1;color:#8998af;font-size:11px}.position-summary strong{display:block;color:#51647f;font-size:18px;margin-top:7px;font-weight:500}.settlement-field{background:#f6f8fd;padding:12px 15px;border-radius:9px;align-self:end}.settlement-field small{color:#8998af;font-size:11px}.settlement-field strong{display:block;font-size:19px;margin-top:6px;color:#51647f;font-weight:500}.record-entry-controls{display:flex;gap:10px;align-items:center}.record-entry-controls .choice{min-width:280px;max-width:390px}.earnings-list .search-field{max-width:340px;min-width:230px}.earnings-table,.records-table{min-width:950px}.asset-table td{padding-left:18px;padding-right:18px}.asset-table th{padding-left:18px;padding-right:18px}.asset-table .numeric{white-space:nowrap;font-variant-numeric:tabular-nums}.asset-table .positive strong{color:#54a78c}.asset-table .negative strong{color:#db7187}.asset-table .asset-name{min-width:160px}.trade-fields input[readonly]{background:#f4f6fb;color:#9ba6b7}.trade-options small{display:none}.page-heading{margin-bottom:20px}.records-panel .panel-heading{padding-bottom:20px}.brand{padding-bottom:23px}.earnings-table .table-sub,.records-table .table-sub{color:#99a5b9}
+@media(max-width:1050px){.operation-cards{grid-template-columns:1fr}.investment-stats{gap:12px}.investment-stats section{padding:20px 16px}.investment-stats strong{font-size:25px}.monthly-entry-cards{grid-template-columns:1fr}.records-panel .panel-heading{align-items:flex-start;flex-direction:column}.record-entry-controls{width:100%}.record-entry-controls .choice{flex:1;max-width:none}.asset-table td{padding:17px 14px}}
+@media(max-width:650px){.finance-dialog.trade-dialog{padding:23px 18px!important}.trade-options{gap:6px}.trade-options small{display:none}.trade-options button{padding:13px 5px}.trade-options strong{font-size:11px}.trade-current strong{font-size:21px}.trade-preview{gap:7px;padding:13px}.trade-preview strong{font-size:13px}.investment-stats{grid-template-columns:1fr 1fr}.investment-stats .main{grid-column:span 2}.investment-hero h2{font-size:21px}.investment-hero-icon{display:none}.operation-filters{flex-wrap:wrap;padding:0 16px 15px}.operation-filters .search-field{flex-basis:100%}.operation-cards{padding:0 10px 10px}.operation-card{gap:10px}.operation-card>svg{display:none}.operation-name strong{font-size:11px}.operation-value strong{font-size:12px}.monthly-archive>summary span{display:block;margin:8px 0 0}.monthly-rates>div{grid-template-columns:repeat(2,minmax(0,1fr))}.monthly-dialog .form-footer{bottom:-23px}.monthly-entry-card{padding:15px}.monthly-form-top{gap:12px}.trade-dialog .form-footer{align-items:flex-start}.trade-dialog .form-footer .button{margin-left:auto}}
+
+/* Centered ledger columns, separate currencies, and stronger text contrast. */
+.asset-table th,.asset-table td,.asset-table .numeric,.monthly-table th,.monthly-table td{text-align:center!important;vertical-align:middle}
+.asset-table{font-size:12px}
+.asset-table th{color:#52627b;font-size:11px;font-weight:550}
+.asset-table td{color:#3e506b}
+.asset-table strong{color:#293e5b;font-size:13px;font-weight:550}
+.asset-table .asset-name{width:100%;justify-content:center;text-align:center;gap:12px}
+.asset-table .asset-name>span:last-child{min-width:116px;text-align:center}
+.asset-table .asset-code,.asset-table .table-sub{color:#65758e;font-size:11px}
+.asset-table .tag{color:#536782;background:#f0f3f8;font-weight:500}
+.asset-table .date-cell{color:#65758e!important;font-size:11px}
+.asset-table .table-actions{justify-content:center}
+.asset-table .table-actions button:last-child{color:#71819a}
+.asset-table .currency-column{min-width:72px;width:76px;padding-left:10px;padding-right:10px}
+.currency-code{display:inline-block;color:#50627e;background:#f3f5fa;border-radius:6px;padding:5px 9px;font-size:11px;font-weight:550;letter-spacing:.035em}
+.positive{color:#16815e!important}.negative{color:#c7475d!important}
+.asset-table .positive strong,.asset-table .negative strong{color:inherit!important}
+.page-content .panel-heading h2,.monthly-intro h2{color:#2d405c}
+.panel-heading p,.muted,.section-caption,.view-summary small,.view-summary em,
+.table-footer,.text-button,.group-card-top p,.group-card-foot,.aggregate-label small,.aggregate-value small,
+.preview-row small,.row-currency,.legend span,.legend b,.stat-label,.stat-card p,
+.real-notice,.real-notice button,.page-footer,.date-text,.topbar,.topbar strong{color:#66758c}
+.workspace small,.nav-caption,.private-note{color:#6d7b91}
+.search-field{color:#6d7d95}.search-field input{color:#344760}.search-field input::placeholder{color:#75839a}
+.choice{color:#536681}.button.secondary{color:#53637c}
+.investment-stats section:not(.main) small{color:#5f718a}
+.investment-stats section:not(.main)>strong:not(.positive):not(.negative){color:#304663}
+.investment-stats .main small{color:#fff}
+.trade-current>span,.trade-preview>span,.settlement-field small,.position-summary span,
+.field-grid label,.field-grid small,.form-footer>span,.finance-dialog [data-slot=dialog-description],
+.monthly-entry-card header small,.monthly-entry-fields label,.monthly-entry-card footer,
+.monthly-archive>summary,.monthly-rates,.monthly-checkbox,.monthly-metrics small,.monthly-selection,
+.rates-grid label>span,.rates-grid small,.source-link{color:#64748b}
+.trade-current strong,.trade-preview strong,.position-summary strong,.settlement-field strong{color:#354c69}
+.trade-options strong{color:#5d6d85}.trade-options button.selected strong{color:#4b5cb8}
+.field-grid input::placeholder,.field-grid textarea::placeholder{color:#7d899d}
+.table-footer .text-button:disabled{color:#929db0}
+@media(max-width:650px){.asset-table .asset-name>span:last-child{min-width:105px}}
+
+/* Currency colors identify labels; reading text stays neutral. */
+.asset-table tr.currency-themed,.monthly-table tr.currency-themed{background:#fff}
+.asset-table tr.currency-themed:hover,.monthly-table tr.currency-themed:hover{background:#f7f8fa}
+.currency-themed .currency-code,.currency-themed .row-currency{color:var(--currency-ink);background:var(--currency-soft);border:0}
+.currency-themed .asset-symbol,.currency-themed .trade-emblem{background:#f1f3f5;color:#737b86}
+.preview-row.currency-themed{background:#fff;padding-left:12px;padding-right:12px;border-radius:8px;margin:0;border-color:#eceef1}
+.preview-row.currency-themed:hover{background:#f7f8fa}
+.preview-row.currency-themed .row-currency{padding:4px 8px;border-radius:6px;font-weight:500}
+.currency-picker.currency-themed{color:var(--currency-ink)!important;background:var(--currency-soft)!important;border-color:transparent!important}
+.currency-option{display:inline-flex;align-items:center;gap:8px;color:var(--currency-ink)}
+.currency-option::before{content:'';width:6px;height:6px;background:var(--currency-ink);border-radius:50%}
+.group-card.currency-themed{background:#fff;border-color:#e7e9ed}
+.group-card .platform-icon{background:#f2f4f6!important;color:#73808e!important}
+.group-card.currency-themed h2{color:var(--currency-ink)}
+.group-card.currency-themed .group-card-value{color:#30343b}
+.aggregate-list>.currency-themed{background:#fff;padding-left:12px;padding-right:12px;border-radius:8px}
+.aggregate-list .currency-themed .aggregate-icon{color:#747e8a;background:#f1f3f5}
+.aggregate-list .currency-themed .aggregate-label strong{color:var(--currency-ink)}
+.currency-tags>.currency-themed{color:#69717d;background:var(--currency-soft);border-color:transparent}
+.currency-tags>.currency-themed b,.rates-grid>.currency-themed strong{color:var(--currency-ink)}
+.rates-grid>.currency-themed>div{border-color:#e2e5ea;background:#fff}
+.trade-dialog.currency-themed .trade-current,.trade-dialog.currency-themed .trade-preview{background:#f7f8fa}
+.monthly-entry-card.currency-themed{border-color:#e7e9ed;background:#fff}
+
+/* Neutral surfaces and readable text; blue is reserved for navigation and actions. */
+:root{
+ --atlas-accent:#56769f;--atlas-accent-hover:#48668e;--atlas-soft:#f3f5f8;--atlas-border:#e7e9ed;
+ --background:#f5f6f8;--foreground:#30343b;
+ --color-primary:var(--atlas-accent);--color-ring:#aab8ca;--color-accent:#f1f4f8;--color-accent-foreground:#4c6382;
+ --color-sidebar-primary:#56769f;--color-sidebar-accent:#edf1f6;--color-sidebar-accent-foreground:#4a6486;
+}
+body{background:#f5f6f8;color:#30343b}
+.panel,.stat-card,.view-summary,.investment-stats section{background:#fff;border-color:#e7e9ed;box-shadow:0 2px 10px #1d243303}
+.topbar,.atlas-sidebar{border-color:#e9ebef}
+.brand{color:#343c49}.brand>span{background:#edf1f7;color:#7288a4}
+.workspace{background:#f7f8fa;border-color:#eceef2}.workspace small,.nav-caption,.private-note{color:#787f89}
+.avatar{background:#eef1f5;color:#7a8696}
+.nav-button{color:#616a77!important}
+.nav-button[data-active=true]{background:#edf1f6!important;color:#4a6486!important}
+.nav-button:not([data-active=true]):hover{background:#f6f7f9!important}
+.button.primary{background:var(--atlas-accent);box-shadow:none}
+.button.primary:hover{background:var(--atlas-accent-hover)}
+.button.secondary,.guide-button{border-color:#e0e4e9;color:#616d7c;background:#fff}
+.button.secondary:hover,.guide-button:hover{background:#f6f7f9}
+.demo-notice{background:#f4f6f9;border-color:#e8ecf1;color:#767e8b}
+.demo-label{background:#e9eef5;color:#677b95}.demo-notice button{color:#647c9b}
+.wealth-card.currency-themed,.investment-stats section.main.currency-themed{
+ background:linear-gradient(120deg,#f4f6f9,#fff);border:1px solid #e3e7ed;
+ color:#30343b;box-shadow:none
+}
+.wealth-card.currency-themed .card-top>span,.wealth-card.currency-themed .wealth-sub,
+.investment-stats .main.currency-themed small{color:#707986}
+.wealth-card.currency-themed .wealth-value,.investment-stats .main.currency-themed strong{color:#30343b}
+.violet,.mint{background:#f0f3f6;color:#8291a3}
+.stat-ratio span{background:#f0f4f2;color:#5c796b}
+.monthly-shortcut{background:#fff;border-color:#e7e9ed}
+.monthly-shortcut-icon{background:#f1f3f6;color:#8795a7}
+.trade-options button.selected{background:#f0f4f9;border-color:#d4dfea;color:#748ba8;box-shadow:none}
+.trade-options button.selected strong{color:#566f90}
+.trade-options button:hover{background:#f8f9fb;border-color:#dfe5ed}
+.trade-ratio button.selected{background:#edf2f7;color:#677f9e}
+.asset-table th,.monthly-table th{background:#f5f6f8;color:#5d636e}
+.asset-table td,.asset-table td.numeric,.asset-table .converted-value{color:#3f454f}
+.asset-table strong,.asset-table .asset-name strong,.monthly-table strong{color:#2c3139}
+.asset-table .asset-code,.asset-table .table-sub{color:#727883}
+.asset-table .date-cell{color:#727883!important}
+.asset-table .tag{background:#f2f3f5;color:#727985}
+.asset-table .asset-symbol{background:#f1f3f5;color:#76808c}
+.asset-table [data-slot="table-row"],.asset-table tr{border-color:#eceef1!important}
+.table-actions button:first-child{background:#f2f5f8;color:#68809e}
+.asset-table .table-actions button:last-child{color:#939ba8}
+.preview-row strong,.group-card-value,.aggregate-label strong,.aggregate-value strong{color:#303640}
+.preview-row small,.row-currency,.legend span,.legend b,.stat-label,.stat-card p,
+.real-notice,.real-notice button,.page-footer,.date-text,.topbar,.topbar strong,
+.panel-heading p,.muted,.section-caption,.view-summary small,.view-summary em,
+.table-footer,.text-button,.group-card-top p,.group-card-foot,.aggregate-label small,.aggregate-value small{color:#737a85}
+.search-field{background:#fff;border-color:#e1e5eb;color:#8a929e}
+.search-field input,.choice,.field-grid input,.field-grid textarea,.rates-grid input{color:#414852}
+.search-field input::placeholder,.field-grid input::placeholder,.field-grid textarea::placeholder{color:#8b929c}
+.field-grid label,.field-grid small,.form-footer>span,.finance-dialog [data-slot=dialog-description],
+.trade-current>span,.trade-preview>span,.settlement-field small,.position-summary span,
+.monthly-entry-card header small,.monthly-entry-fields label,.monthly-entry-card footer,
+.monthly-archive>summary,.monthly-rates,.monthly-checkbox,.monthly-metrics small,.monthly-selection,
+.rates-grid label>span,.rates-grid small,.source-link{color:#737a85}
+.trade-current strong,.trade-preview strong,.position-summary strong,.settlement-field strong,
+.monthly-entry-card.currency-themed header strong,.monthly-table .currency-themed td:first-child strong{color:#303640}
+.investment-stats section:not(.main) small{color:#727985}
+.investment-stats section:not(.main)>strong:not(.positive):not(.negative){color:#303640}
+.positive{color:#477c65!important}.negative{color:#ad5966!important}
+.asset-table .positive strong,.asset-table .negative strong{color:inherit!important}
+.field-grid input:focus,.field-grid textarea:focus,.import-textarea:focus,
+.search-field:focus-within,.rates-grid label>div:focus-within{outline-color:#c7d2e0}
+button:focus-visible,a:focus-visible{outline-color:#9eadc3}
+.monthly-entry-card input[type=checkbox],.monthly-checkbox input[type=checkbox]{accent-color:#7f97b7}
+
+/* Neutral section headings balance the pastel currency rows. */
+.page-content .panel-heading h2,.monthly-intro h2{color:#30343b;font-weight:600}
+.earnings-list>.panel-heading,.records-panel>.panel-heading{background:#fff;padding:20px 24px 18px}
+.earnings-list>.panel-heading h2,.records-panel>.panel-heading h2{font-size:14px;letter-spacing:.01em}
+.panel-heading .count{background:transparent;color:#7e8999;font-size:11px;font-weight:400;padding:0 2px}
+.asset-table th,.monthly-table th{background:#f5f6f8;color:#606671;font-weight:500;font-size:11px;height:44px;border-top-color:#e9edf3}
+.asset-table thead tr{border-bottom-color:#e4e9f0!important}
+.earnings-list>.panel-heading .search-field{background:#fafbfc;border-color:#e3e6eb;color:#89909b}
+.earnings-list>.panel-heading .search-field input{color:#434a55}
+.earnings-list>.panel-heading .search-field input::placeholder{color:#8b929c}
+@media(max-width:650px){.earnings-list>.panel-heading,.records-panel>.panel-heading{padding:18px 16px}.earnings-list>.panel-heading{flex-wrap:wrap}}
+
+/* Overview sections share the same neutral surfaces and quiet currency accents. */
+.overview-group-section{margin:24px 0}
+.overview-section-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 2px 16px}
+.overview-section-heading h2{font-size:14px;font-weight:600;color:#30343b}
+.overview-section-heading>span{font-size:11px;color:#737a85}
+.overview-groups{gap:16px}
+.overview-groups.platform-groups{grid-template-columns:repeat(4,minmax(0,1fr))}
+.overview-groups .group-card{min-width:0;padding:22px;text-align:center}
+.overview-groups .group-card-top{justify-content:center;margin-bottom:20px}
+.overview-groups .group-card-top h2{color:#414852}
+.overview-groups .currency-code{padding:9px 11px;font-size:12px}
+.overview-groups .group-card-value{font-size:25px;color:#30343b}
+.overview-groups .group-card-foot{margin-top:20px}
+.overview-groups .group-card-foot>span:last-child{color:#68809e}
+.overview-groups>.empty-inline{grid-column:1/-1}
+.monthly-exchange .panel-heading{align-items:center}
+.rate-month{display:flex;align-items:center;gap:12px;color:#616a77;font-size:11px}
+.rate-month input{padding:9px 12px;border:1px solid #e1e5eb;border-radius:7px;background:#fff;color:#414852;font-size:12px}
+.rate-month input:focus{outline:2px solid #c7d2e0;outline-offset:2px}
+.monthly-exchange .form-footer{justify-content:flex-end}
+.monthly-exchange .rates-grid input:disabled{color:#7c8591}
+@media(max-width:1200px){.overview-groups.platform-groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.overview-groups.currency-groups{grid-template-columns:1fr}.overview-groups .group-card{padding:20px 16px}.overview-groups .group-card-value{font-size:22px}.monthly-exchange .panel-heading{align-items:flex-start;flex-direction:column;gap:18px}.rate-month{width:100%;justify-content:space-between}}
+@media(max-width:500px){.overview-groups.platform-groups{grid-template-columns:1fr}}
+
+/* A single heading row gives the ledger more room. */
+.page-content{padding-top:24px}
+.page-title{display:flex;align-items:center;gap:12px;min-width:0}
+.page-title [data-slot=sidebar-trigger]{color:#747e8a;flex-shrink:0}
+.page-heading .icon-button{width:32px;height:32px;color:#778391}
+.page-heading .icon-button:hover{background:#e9edf2}
+.atlas-sidebar .brand{padding-top:23px;padding-bottom:23px}
+.atlas-sidebar [data-slot=sidebar-content]{padding-top:8px}
+@media(max-width:640px){.page-content{padding-top:18px}.page-title{gap:9px}.page-heading{margin-bottom:18px}}
+
+/* Category names and percentages belong to the pie itself. */
+.allocation-pie{height:370px;padding:0 12px 18px;display:flex;align-items:center;justify-content:center}
+.allocation-pie svg{display:block;width:100%;height:100%;max-width:420px;overflow:visible}
+.allocation-sectors{filter:drop-shadow(0 5px 9px #4653640c)}
+.allocation-slice{transition:filter .15s;outline:none}
+.allocation-slice:hover,.allocation-slice:focus{filter:brightness(1.04)}
+.allocation-slice:focus path,.allocation-slice:focus circle{stroke:#fff;stroke-width:3.5px}
+.allocation-label{font-size:11px;fill:#535d6a;font-weight:500;pointer-events:none}
+.allocation-label.inside{fill:#2d3d4d}
+.allocation-percent{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.chart-grid .trend-chart{height:370px}
+@media(min-width:951px){.chart-grid{grid-template-columns:1.4fr 1fr}}
+@media(max-width:500px){.allocation-pie{height:320px;padding:0 6px 16px}.chart-grid .trend-chart{height:270px}}
+
+/* Local brand marks replace the initial-letter placeholders. */
+.asset-symbol{flex-shrink:0}
+.asset-symbol.asset-brand,.currency-themed .asset-symbol.asset-brand{background:#fff;box-shadow:inset 0 0 0 1px #eceef2;border-radius:12px;overflow:hidden}
+.asset-brand-image{display:flex;align-items:center;justify-content:center;width:30px;height:30px;overflow:hidden}
+.asset-brand-image img,.asset-brand-image svg{display:block;max-width:100%;width:100%;height:100%;object-fit:contain}
+.trade-asset-icon{width:50px;height:50px;border-radius:14px;font-size:19px}
+.trade-asset-icon .asset-brand-image{width:34px;height:34px}
+.group-card-top>.asset-symbol{width:42px;height:42px}
+
+/* Align the brand and page heading on one shared horizontal row. */
+.atlas-sidebar [data-slot=sidebar-header]{height:92px;padding:0;flex-shrink:0}
+.atlas-sidebar .brand{height:92px;padding:0 24px;font-size:22px;line-height:32px}
+.page-content{padding-top:24px}
+.page-heading{min-height:44px;align-items:center}
+.page-title h1{line-height:32px}
+.asset-page-tabs{margin:0 0 20px}
+.asset-page-tabs [data-slot=tabs-list]{height:38px;background:#edf0f4;border-radius:9px;padding:4px}
+.asset-page-tabs [data-slot=tabs-trigger]{font-size:12px;padding:5px 20px;color:#66717f}
+.asset-page-tabs [data-slot=tabs-trigger][data-state=active]{background:#fff;color:#35465e}
+.grouped-asset-page{display:flex;flex-direction:column;gap:22px}
+.grouped-page-filter .asset-toolbar{padding:18px 22px}
+.asset-group-heading{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.asset-group-title{display:flex;align-items:center;gap:12px}
+.asset-group-title h2{font-size:14px;font-weight:600;color:#30343b}
+.asset-group-title small,.asset-group-total small{display:block;color:#737a85;font-size:11px;margin-top:6px}
+.asset-group-title .currency-code{padding:9px 12px}
+.asset-group-total{text-align:right;font-variant-numeric:tabular-nums}
+.asset-group-total strong{font-size:23px;font-weight:600;color:#30343b}
+.platform-currency-totals{padding:0 24px 18px;display:flex;gap:20px;flex-wrap:wrap}
+.platform-currency-totals>span{display:flex;align-items:center;gap:8px}
+.platform-currency-totals b{font-size:12px;font-weight:500;color:#535d6a;font-variant-numeric:tabular-nums}
+.asset-edit-footer .asset-edit-actions{display:flex;gap:10px;margin-left:auto}
+.asset-delete{color:#b4656e;background:#fff;border-color:#eadadd}
+.asset-delete:hover{background:#fcf5f6}
+.income-curves-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:24px}
+.income-curves-grid .monthly-chart{height:230px}
+@media(max-width:900px){.income-curves-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.page-content{padding-top:18px}.page-heading{align-items:flex-start}.asset-group-heading{padding:18px 16px}.asset-group-total strong{font-size:20px}.platform-currency-totals{padding:0 16px 16px;gap:14px}.asset-edit-footer{gap:10px}.asset-edit-footer .button{padding:8px 12px}}
+
+/* Currency settings use one entry button and a fixed renminbi rate basis. */
+.rate-base-label{display:inline-block;margin-left:12px;padding:5px 9px;border-radius:6px;background:#edf3fa;color:#617e9f;font-size:10px;font-weight:500;vertical-align:middle}
+.rate-month-control{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.rate-effective-date{font-size:11px;color:#737a85}
+.rate-effective-date strong{font-weight:500;color:#535d6a;margin-left:8px;font-variant-numeric:tabular-nums}
+.currency-settings .panel-heading{align-items:center}
+.currency-settings .panel-heading .count{margin-left:8px}
+.currency-settings .currency-tags{padding-bottom:24px}
+.currency-rate-input{position:relative}
+.currency-rate-input input{padding-right:55px}
+.currency-rate-input small{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:10px;color:#737a85;pointer-events:none}
+@media(max-width:650px){.rate-month-control{width:100%;align-items:stretch}.rate-effective-date{text-align:right}.rate-base-label{margin-left:8px}.currency-settings .panel-heading{gap:12px}.currency-settings .panel-heading h2{font-size:13px}.currency-settings .panel-heading .button{padding:8px 11px}}
+
+/* Updates belong to holdings; records keep each transaction easy to read. */
+.asset-symbol,.asset-table .asset-symbol,.asset-symbol.asset-brand,.currency-themed .asset-symbol.asset-brand,.trade-asset-icon{border-radius:50%}
+.asset-icon-button{border:0;padding:0;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.asset-icon-button:hover{box-shadow:0 0 0 3px #edf2f7;transform:scale(1.04)}
+.asset-icon-button:focus-visible{outline:2px solid #90a8c4;outline-offset:3px}
+.asset-label{color:inherit;text-align:center;min-width:0;line-height:1.5}
+button.asset-label:hover strong{color:#597da7}
+.trade-update-footer{align-items:center;justify-content:space-between}
+.trade-update-footer>div{display:flex;gap:10px}
+.trade-update-footer>.text-button{font-size:12px;color:#667c98}
+.records-readable .asset-toolbar{padding-top:0}
+.records-readable .records-table{min-width:860px}
+.record-kind{display:inline-block;padding:5px 9px;border-radius:6px;font-size:10px;background:#f0f2f5;color:#66717f;white-space:nowrap}
+.record-kind.expense{background:#f7f0f1;color:#9c6e77}
+.record-kind.income{background:#eef5f1;color:#658773}
+.record-expand{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:6px;font-size:11px;color:#667c98;background:#f0f4f8;white-space:nowrap}
+.record-expand:hover{background:#e9eff5}
+.record-expand svg{transition:transform .15s}
+.record-expand.open svg{transform:rotate(180deg)}
+.record-detail-row td{background:#f8fafc;padding:20px 28px!important}
+.record-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;text-align:left}
+.record-detail-grid small,.record-detail-note small{display:block;color:#737d89;font-size:11px;margin-bottom:8px}
+.record-detail-grid strong{font-size:13px;color:#36414f;font-weight:500;font-variant-numeric:tabular-nums}
+.record-detail-note{margin-top:20px;text-align:left;font-size:12px;color:#535d6a;white-space:pre-wrap}
+.icon-preview{display:flex;align-items:center;justify-content:center;padding:12px 0 22px}
+.icon-preview .asset-symbol{width:112px;height:112px;border-radius:50%;font-size:34px}
+.icon-preview .asset-brand-image{width:84px;height:84px}
+.icon-file-actions{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px}
+.icon-file-actions .disabled{opacity:.55;cursor:wait}
+@media(max-width:650px){.record-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.record-detail-row td{padding:18px!important}.trade-update-footer>div{gap:7px}}
+
+/* Keep each holding's logo, name and code on a consistent left edge. */
+.asset-table:not(.records-table) th:first-child,.asset-table:not(.records-table) td:first-child{text-align:left!important}
+.asset-table:not(.records-table) .asset-name{justify-content:flex-start;text-align:left}
+.asset-table:not(.records-table) .asset-name>span:last-child,.asset-table:not(.records-table) .asset-label{text-align:left}
+
+.sync-button{position:relative}.sync-button i{width:6px;height:6px;border-radius:50%;background:#b89b63;margin-left:2px}
+.feishu-connection-facts{display:grid;grid-template-columns:.7fr 1.15fr 1.15fr;gap:22px;margin-bottom:24px}
+.feishu-connection-facts small{display:block;font-size:11px;color:#77818f;margin-bottom:9px}
+.feishu-connection-facts strong{font-size:12px;color:#414b58;font-weight:500;font-variant-numeric:tabular-nums}
+.feishu-settings .sync-footer{gap:16px;align-items:center}.feishu-settings .sync-footer>span{margin-right:auto;font-size:12px;color:#6a7583}.feishu-settings .sync-footer a{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#657e9e}
+.sync-conflict-actions{display:flex;gap:10px;margin:15px 0}.feishu-settings .sync-message{color:#a57952;background:#fbf6ef}
+@media(max-width:650px){.feishu-connection-facts{grid-template-columns:1fr;gap:18px}.feishu-settings .sync-footer{flex-wrap:wrap}}
+
+/* Every summary follows the manually assigned ledger classification. */
+.platform-asset-details{display:flex;flex-direction:column;gap:20px;padding:20px;background:#f3f6fa;border-top:1px solid #e6ebf2;border-radius:0 0 16px 16px}
+.platform-detail-group{min-width:0;overflow:hidden;background:#fff;border:1px solid #dce4ef;border-radius:12px;box-shadow:0 2px 6px #344c6b05}
+.platform-detail-group .asset-group-heading{padding:18px 24px;background:#edf3f9;border-bottom:1px solid #dce4ef;box-shadow:inset 4px 0 #8ca6c7}
+.platform-detail-group .asset-group-title h2{color:#304e73;font-size:15px}
+.platform-detail-group .asset-table th{border-top:0}
+.platform-asset-details>.empty-inline{background:#fff;border:1px solid #e6ebf2;border-radius:12px}
+@media(max-width:640px){.platform-asset-details{padding:12px;gap:16px}.platform-detail-group .asset-group-heading{padding:16px}.platform-detail-group .asset-group-title{gap:9px}.platform-detail-group .asset-group-title h2{font-size:14px}}
+.classification-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:18px;margin-bottom:24px}
+.classification-summary-grid .wealth-card,.classification-summary-grid .stat-card{padding:20px 22px;border:1px solid #e2e7ee;border-radius:16px}
+.classification-summary-grid .wealth-value,.classification-summary-grid .stat-card>strong{font-size:clamp(22px,1.8vw,30px);line-height:1.3;letter-spacing:-.03em;white-space:nowrap}
+.classification-summary-grid .wealth-value{margin:19px 0 0}
+.classification-summary-grid .stat-label{height:27px;margin-bottom:19px;color:#5f6b7a;font-size:12px}
+.classification-share{font-size:11px;color:#7a8796;background:#f2f5f8;border-radius:6px;padding:4px 7px}
+.summary-performance{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;margin:16px 0 0;padding-top:12px;border-top:1px solid #e9edf2}
+.summary-performance dt{font-size:11px;line-height:1.5;color:#748092;font-weight:400}
+.summary-performance dd{margin:4px 0 0;font-size:clamp(10px,.86vw,12px);font-weight:500;line-height:1.5;white-space:nowrap;font-variant-numeric:tabular-nums;color:#40516b}
+.summary-performance dd.positive{color:#3d8378}.summary-performance dd.negative{color:#b75e69}
+.overview-main-curves,.overview-classification-curves{display:grid;gap:22px;margin-bottom:24px}
+.overview-main-curves{grid-template-columns:repeat(2,minmax(0,1fr))}
+.overview-classification-curves{grid-template-columns:repeat(3,minmax(0,1fr))}
+.overview-main-curves .trend-chart,.overview-main-curves .monthly-chart{height:280px;padding:0 16px 16px}
+.overview-classification-curves .monthly-chart{height:240px;padding:0 12px 12px}
+.overview-main-curves .panel-heading,.overview-classification-curves .panel-heading{min-height:67px}
+.overview-main-curves .panel,.overview-classification-curves .panel{border-color:#e5eaf1;border-radius:20px;background:linear-gradient(180deg,#fff,#fcfdff);box-shadow:0 4px 20px #263d5b04}
+.overview-main-curves .panel-heading h2,.overview-classification-curves .panel-heading h2{display:flex;align-items:center;gap:9px;font-family:inherit;font-size:14px;font-weight:600;letter-spacing:.01em;color:#34465f}
+.overview-main-curves .panel-heading h2::before,.overview-classification-curves .panel-heading h2::before{content:"";width:4px;height:14px;flex:none;border-radius:4px;background:var(--curve-color)}
+.overview-main-curves .panel-heading>.muted,.overview-classification-curves .panel-heading>.muted{padding:4px 8px;border-radius:6px;color:var(--curve-color);background:color-mix(in srgb,var(--curve-color) 9%,white);font-size:10px;line-height:1.3}
+.overview-main-curves .recharts-cartesian-axis-tick-label,.overview-classification-curves .recharts-cartesian-axis-tick-label{font-variant-numeric:tabular-nums}
+.chart-endpoint-guide{pointer-events:none}
+@media(min-width:1380px){.overview-classification-curves{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.group-summary-table{min-width:620px}
+.group-summary-table th,.group-summary-table td{padding:15px 24px;font-size:12px}
+.summary-currency-label{display:flex;align-items:center;gap:12px;color:#4a586a}
+.summary-total-row{background:#f5f7fa!important;font-weight:500}
+.summary-total-row td{border-top:1px solid #e5eaf1}
+.summary-empty{text-align:center!important;padding:28px!important;color:#77818e}
+@media(max-width:1100px){.classification-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-classification-curves{gap:16px}.overview-classification-curves .panel-heading{padding:18px 16px}.overview-classification-curves .monthly-chart{padding:0 4px 12px}}
+@media(max-width:760px){.overview-main-curves,.overview-classification-curves{grid-template-columns:1fr}.overview-classification-curves .monthly-chart{height:240px;padding:0 12px 12px}}
+@media(max-width:480px){.classification-summary-grid{grid-template-columns:1fr;gap:12px}.classification-summary-grid .wealth-card{grid-column:auto}.overview-main-curves .trend-chart,.overview-main-curves .monthly-chart{height:240px;padding:0 8px 12px}.group-summary-table th,.group-summary-table td{padding:14px 18px}}
+
+/* Even-column overview and compact account summaries. */
+.classification-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.classification-summary-grid .wealth-card,.classification-summary-grid .stat-card{min-width:0}
+.summary-performance{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.summary-performance dd{font-size:12px}
+.overview-classification-curves{grid-template-columns:repeat(2,minmax(0,1fr))}
+.trade-help{font-size:12px;line-height:1.7;color:#737a85;margin:14px 0}
+.trade-preview .cash-effect{grid-column:1/-1;padding-top:12px;border-top:1px solid #e2e7ef}
+@media(min-width:1380px){.classification-summary-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:20px}.classification-summary-grid .wealth-card,.classification-summary-grid .stat-card{padding:18px 12px}.classification-summary-grid .wealth-value,.classification-summary-grid .stat-card>strong{font-size:clamp(20px,1.7vw,27px)}.summary-performance{grid-template-columns:minmax(0,1.35fr) minmax(0,1.1fr) minmax(0,.9fr);gap:4px}.summary-performance dt{font-size:10px}.summary-performance dd{font-size:10px}.overview-classification-curves{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.overview-main-curves,.overview-classification-curves{grid-template-columns:minmax(0,1fr);gap:16px}.overview-main-curves .panel,.overview-classification-curves .panel{min-width:0}.overview-main-curves .panel-heading,.overview-classification-curves .panel-heading{padding:18px 16px;flex-wrap:wrap}.overview-main-curves .panel-heading h2,.overview-classification-curves .panel-heading h2{font-size:14px}.overview-main-curves .trend-chart,.overview-main-curves .monthly-chart,.overview-classification-curves .monthly-chart{height:280px;padding:0 8px 16px}.overview-main-curves .recharts-cartesian-axis-tick-label,.overview-classification-curves .recharts-cartesian-axis-tick-label{font-size:12px}}
+@media(max-width:480px){.classification-summary-grid{grid-template-columns:1fr;gap:10px}.classification-summary-grid .wealth-card,.classification-summary-grid .stat-card{padding:16px 12px}.classification-summary-grid .wealth-value,.classification-summary-grid .stat-card>strong{font-size:18px}.summary-performance{gap:4px}.summary-performance dd{font-size:10px}}
+
+.operation-rates{padding:16px 18px;margin:12px 0;background:#f4f7fb;border:1px solid #dce5f0;border-radius:12px}.operation-rates strong{font-size:13px;color:#486989}.operation-rates p{font-size:12px;color:#7b899a;margin:6px 0 12px;line-height:1.6}.operation-rates-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}.operation-rates-fields label{font-size:12px;color:#697b91}.operation-rates-fields input{display:block;width:100%;margin-top:6px}.operation-rates-confirmed{font-size:12px;color:#728b7d;margin:2px 0 8px}@media(max-width:500px){.operation-rates-fields{grid-template-columns:1fr}}

@@ -1,0 +1,119 @@
+{
+  "retrieved": "2026-10-01",
+  "sources": [
+    {
+      "brand": "apple",
+      "file": "apple.ico",
+      "source": "https://www.apple.com/favicon.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "guotai",
+      "file": "guotai.png",
+      "source": "https://www.gtfund.com/Public/static/etrade/1/dist/i/common/fav.png",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "alipay",
+      "file": "alipay.ico",
+      "source": "https://img.alicdn.com/tfs/TB1qEwuzrj1gK0jSZFOXXc7GpXa-32-32.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "sandisk",
+      "file": "sandisk.ico",
+      "source": "https://www.sandisk.com/content/dam/sandisk/en-us/portal-assets/logos/favicon.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "bocim",
+      "file": "bocim.ico",
+      "source": "https://www.bocim.com/images/favicon.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "invesco",
+      "file": "invesco.png",
+      "source": "https://www.invesco.com/etc.clientlibs/invesco/clientlibs/main/resources/images/apple-touch-icon.png",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "spacex",
+      "file": "spacex.png",
+      "source": "https://www.google.com/s2/favicons?domain=spacex.com&sz=128",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "tesla",
+      "file": "tesla.png",
+      "source": "https://www.google.com/s2/favicons?domain=tesla.com&sz=128",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "orient",
+      "file": "orient.ico",
+      "source": "https://www.orient-fund.com/favicon.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "za",
+      "file": "za.png",
+      "source": "https://cdn.za.group/if/za-group-portal-web/assets/images/share-logo.png",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "nvidia",
+      "file": "nvidia.ico",
+      "source": "https://www.nvidia.com/favicon.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "jpmorgan",
+      "file": "jpmorgan.ico",
+      "source": "https://cdn.jpmorganfunds.com/etc/designs/jpm-am-aem/images/favicon.ico",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "huaan-logo",
+      "file": "huaan-logo.png",
+      "source": "https://www.huaan.com.cn/img/home_nav_logo.png",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "changsheng-logo",
+      "file": "changsheng-logo.png",
+      "source": "https://www.csfunds.com.cn/images/logo.png",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "southern-logo",
+      "file": "southern-logo.png",
+      "source": "https://www.southernfund.com/images/logo.png",
+      "retrieved": "2026-10-01"
+    },
+    {
+      "brand": "sdic-logo",
+      "file": "sdic-logo.png",
+      "source": "https://static1.sdicsc.com.cn/v6/img/essence-new.png",
+      "retrieved": "2026-10-01"
+    }
+  ],
+  "codeMappings": {
+    "400030": "orient",
+    "513100": "guotai",
+    "513800": "southern",
+    "QQQ": "invesco",
+    "NVDA": "nvidia",
+    "AAPL": "apple",
+    "TSLA": "tesla",
+    "SNDK": "sandisk",
+    "015736": "changsheng",
+    "007329": "jpmorgan",
+    "001235": "bocim",
+    "000217": "huaan"
+  },
+  "nameMappings": {
+    "SpaceX": "spacex"
+  },
+  "note": "Numeric lookup pads omitted leading zeroes without changing ledger codes. SpaceX is matched by the user-entered asset name. Icons are bundled locally."
+}

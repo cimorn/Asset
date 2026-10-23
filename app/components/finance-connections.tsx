@@ -1,0 +1,39 @@
+'use client';
+import {currencyStyle,currencyTheme} from '@/lib/currency-theme';
+import {useEffect,useState} from 'react';
+import {Cloud,ExternalLink,Plus,Link2} from 'lucide-react';
+import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogDescription} from '@/components/ui/dialog';
+import {type Book,type Action,currencyNames} from '@/lib/finance';
+export function CurrencyManager({book,onSave,busy}:{book:Book;onSave:(a:Action)=>Promise<boolean>;busy:boolean}){
+ const [open,setOpen]=useState(false),[code,setCode]=useState(''),[name,setName]=useState(''),[rate,setRate]=useState('');
+ return <>
+  <section className="panel currency-settings"><div className="panel-heading"><h2>我的币种 <span className="count">{Object.keys(currencyNames(book)).length} 种</span></h2><button type="button" className="button secondary" disabled={busy} onClick={()=>setOpen(true)}><Plus size={15}/>增加币种</button></div><div className="currency-tags">{Object.entries(currencyNames(book)).map(([c,n])=><span key={c} className="currency-themed" style={currencyStyle(c)}><b>{c}</b>{n}</span>)}</div></section>
+  <Dialog open={open} onOpenChange={value=>!busy&&setOpen(value)}><DialogContent className="finance-dialog currency-dialog"><DialogHeader><DialogTitle>增加币种</DialogTitle><DialogDescription className="sr-only">填写币种代码、名称和兑人民币汇率</DialogDescription></DialogHeader>
+   <form onSubmit={async event=>{event.preventDefault();if(await onSave({type:'currency',code:code.toUpperCase(),name,rate:Number(rate)})){setCode('');setName('');setRate('');setOpen(false);}}}>
+    <div className="field-grid"><label>币种代码<input autoFocus required disabled={busy} aria-label="新增币种代码" maxLength={3} minLength={3} pattern="[A-Za-z]{3}" placeholder="EUR" value={code} onChange={event=>setCode(event.target.value.toUpperCase())}/></label><label>币种名称<input required disabled={busy} aria-label="新增币种名称" maxLength={20} placeholder="欧元" value={name} onChange={event=>setName(event.target.value)}/></label><label className="span-2">兑人民币汇率<div className="currency-rate-input"><input required disabled={busy} aria-label="新增币种汇率" type="number" min="0.00000001" max="1000000" step="any" placeholder="8.20" value={rate} onChange={event=>setRate(event.target.value)}/><small>CNY</small></div></label></div>
+    <div className="form-footer"><button type="button" className="button secondary" disabled={busy} onClick={()=>setOpen(false)}>取消</button><button type="submit" className="button primary" disabled={busy}>{busy?'保存中…':'增加币种'}</button></div>
+   </form>
+  </DialogContent></Dialog>
+ </>;
+}
+export type FeishuStatus={desktop?:boolean;configured?:boolean;linked?:boolean;url?:string|null;lastSyncedAt?:string|null;lastPulledAt?:string|null;error?:string;warning?:string;target?:string;dirty?:boolean;syncing?:boolean;conflicts?:string[];source?:string;canReprepare?:boolean;canRetry?:boolean;hasHistoricalDraft?:boolean;version?:number};
+export function FeishuConnection({status,busy,onSync}:{status:FeishuStatus;busy:boolean;onSync:(target?:string)=>Promise<boolean>}){
+ const [target,setTarget]=useState(status.target??'');
+ const [configuring,setConfiguring]=useState(false),[configError,setConfigError]=useState('');
+ async function configure(){setConfiguring(true);setConfigError('');try{const response=await fetch('/api/ledger/configure',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}),result=await response.json() as {error?:string;cancelled?:boolean};if(!response.ok)throw new Error(result.error||'配置失败');if(!result.cancelled)window.location.reload();}catch(error){setConfigError((error as Error).message);}finally{setConfiguring(false);}}
+ async function reprepare(){setConfiguring(true);setConfigError('');try{const response=await fetch('/api/ledger/reprepare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:status.version})}),result=await response.json() as {error?:string};if(!response.ok)throw Error(result.error||'重新准备失败');window.location.reload();}catch(error){setConfigError((error as Error).message);}finally{setConfiguring(false);}}
+ async function recover(route:string){setConfiguring(true);setConfigError('');try{const current=await fetch('/api/book',{cache:'no-store'}).then(r=>r.json()) as {version:number};const response=await fetch(route,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:current.version})}),result=await response.json() as {error?:string};if(!response.ok)throw Error(result.error||'恢复失败');window.location.reload();}catch(error){setConfigError((error as Error).message);}finally{setConfiguring(false);}}
+ useEffect(()=>setTarget(status.target??''),[status.target]);
+ const stamp=(value?:string|null)=>value?new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}):'—';
+ return <><section className="panel feishu-settings"><div className="panel-heading"><div><h2><Cloud size={17}/>财务管理</h2></div><span className={`connection-badge ${status.linked?'connected':''}`}>{status.linked?'已连接':'待连接'}</span></div><div className="connection-body">
+  <div className="feishu-connection-facts"><div><small>应用配置</small><strong>{status.configured?'已配置':'未配置'}</strong></div><div><small>最近保存</small><strong>{stamp(status.lastSyncedAt)}</strong></div><div><small>最近读取</small><strong>{stamp(status.lastPulledAt)}</strong></div></div>
+  {!status.linked&&<label>NAS 账本来源<input aria-label="NAS 账本来源" value={status.url??''} readOnly placeholder="选择 NAS .env 后连接同一正式账本" maxLength={500}/></label>}
+  {(configError||status.error||status.warning)&&<p className="sync-message" role="status">{configError||status.error||status.warning}</p>}
+  {!status.configured&&<button type="button" className="button secondary" disabled={busy||configuring} onClick={()=>void configure()}>{configuring?'读取中…':'选择 NAS .env 文件'}</button>}
+  {status.canReprepare&&<button type="button" className="button secondary" disabled={busy||configuring} onClick={()=>void reprepare()}>保留操作并重新准备</button>}
+  {status.canRetry&&<button type="button" className="button primary" disabled={busy||configuring} onClick={()=>void recover('/api/ledger/retry')}>重试保存</button>}
+  {(status.hasHistoricalDraft||status.canRetry)&&<button type="button" className="button secondary" disabled={busy||configuring} onClick={()=>void recover('/api/ledger/archive-drafts')}>归档本机草稿并重新填写</button>}
+  <a className="text-button" href="/api/ledger/drafts" download="资产罗盘-本机草稿备份.json">下载本机草稿备份</a>
+  <div className="sync-footer"><span>{status.canRetry?'保存未完成，请明确重试':status.hasHistoricalDraft?'旧草稿已保留，请备份后归档':status.linked?'保存与确认更新会直接写入 NAS':'尚未连接'}</span>{status.url&&<a className="text-button" href={status.url} target="_blank" rel="noreferrer">打开 NAS 账本 <ExternalLink size={12}/></a>}<button className="button primary" disabled={busy||status.syncing||status.configured===false||status.canReprepare} onClick={()=>void onSync(target)}><Link2 size={14}/>{busy?'处理中…':status.linked?'读取 NAS':'连接并读取'}</button></div>
+ </div></section></>;
+}

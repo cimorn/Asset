@@ -1,0 +1,33 @@
+name: asset
+services:
+  asset:
+    image: ghcr.io/cimorn/assetmanager:latest
+    pull_policy: always
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://asset_app:${MONGO_APP_PASSWORD:?Set MONGO_APP_PASSWORD}@mongodb-asset:27017/asset?authSource=asset
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      mongodb-asset:
+        condition: service_healthy
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  mongodb-asset:
+    image: mongo:7.0
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://asset_app:${MONGO_APP_PASSWORD:?Set MONGO_APP_PASSWORD}@mongodb-asset:27017/asset?authSource=asset
+    command: ["mongod", "--auth", "--wiredTigerCacheSizeGB", "0.25"]
+    volumes:
+      - ${MONGODB_DATA_DIR:-./data/mongodb}:/data/db
+      - ./deploy/docker/init-mongo.js:/docker-entrypoint-initdb.d/10-asset.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand({ping:1}).ok ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s

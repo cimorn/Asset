@@ -1,0 +1,17 @@
+{
+  "name": "finance-atlas-desktop",
+  "productName": "资产罗盘",
+  "version": "2.0.8",
+  "private": true,
+  "type": "module",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "@electron/asar": "3.4.1"
+  },
+  "description": "资产罗盘 Windows 桌面资产管理"
+}

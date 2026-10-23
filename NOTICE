@@ -1,0 +1,7 @@
+AssetManager application source is licensed under the MIT License.
+Third-party dependencies retain their respective licenses.
+Company names, trademarks and asset logos in public/asset-logos belong to
+their respective owners and are not relicensed under the MIT License.
+The repository and published image contain no production ledger, private
+environment configuration or database storage. Each deployment supplies its
+own credentials and data on its own server.
