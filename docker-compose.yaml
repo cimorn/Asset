@@ -1,7 +1,7 @@
 name: asset
 services:
   asset:
-    image: ghcr.io/cimorn/assetmanager:latest
+    image: ghcr.io/cimorn/asset:latest
     pull_policy: always
     restart: unless-stopped
     env_file: .env

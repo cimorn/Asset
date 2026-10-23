@@ -90,7 +90,7 @@ docker compose up -d --no-deps asset
 
 账本内容：打开网页或软件 ---> 修改资产、流水或汇率 ---> 保存／确认更新。未保存输入保留在当前设备，换设备前先确认保存成功。
 
-回退程序时，将应用镜像改为 `ghcr.io/cimorn/assetmanager:sha-完整提交号`，再更新应用容器。
+回退程序时，将应用镜像改为 `ghcr.io/cimorn/asset:sha-完整提交号`，再更新应用容器。
 
 ## 备份与恢复
 

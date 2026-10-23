@@ -52,8 +52,7 @@ jobs:
         id: image
         shell: bash
         run: |
-          # Keep the existing image address for deployed clients.
-          image="ghcr.io/cimorn/assetmanager"
+          image="ghcr.io/cimorn/asset"
           {
             echo 'tags<<TAGS'
             echo "${image}:sha-${GITHUB_SHA}"

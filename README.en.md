@@ -90,7 +90,7 @@ Desktop: run `npm run package` again ---> Replace the old EXE ---> Open it and r
 
 Ledger content: open either client ---> Edit assets, transactions, or exchange rates ---> Save or confirm the update. Unsaved input stays on the current device; confirm a successful save before switching devices.
 
-To roll back the application, set its image to `ghcr.io/cimorn/assetmanager:sha-FULL_COMMIT_HASH`, then update the application container.
+To roll back the application, set its image to `ghcr.io/cimorn/asset:sha-FULL_COMMIT_HASH`, then update the application container.
 
 ## Backup and restore
 
