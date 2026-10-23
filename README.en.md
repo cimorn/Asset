@@ -7,8 +7,8 @@ Track assets, transactions, exchange rates, and returns across currencies. Use t
 ## Docker deployment
 
 ```sh
-git clone https://github.com/cimorn/AssetManager.git
-cd AssetManager
+git clone https://github.com/cimorn/Asset.git
+cd Asset
 cp .env.example .env
 ```
 

@@ -15,7 +15,7 @@ RUN node node_modules/typescript/bin/tsc --noEmit && node build.mjs
 FROM node:22-bookworm-slim
 ENV NODE_ENV=production PORT=3000
 WORKDIR /app
-LABEL org.opencontainers.image.source="https://github.com/cimorn/AssetManager"
+LABEL org.opencontainers.image.source="https://github.com/cimorn/Asset"
 COPY LICENSE NOTICE ./
 COPY --chown=node:node package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
