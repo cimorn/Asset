@@ -140,7 +140,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
      <button className="button primary" disabled={!ready} onClick={()=>edit()}><Plus size={17}/>添加资产</button></>}
     </div>
    </div>
-   <p className="browser-draft-note">点击保存或确认更新后直接保存到 NAS，其他设备可读取。尚未确认的输入保留在当前浏览器。{!!sync.archivedDrafts&&<> 旧来源草稿仍保留：<button className="text-button" onClick={()=>void exportBrowserCaches().then(value=>download('资产罗盘-浏览器旧草稿.json',JSON.stringify(value,null,2),'application/json')).catch(error=>toast.error((error as Error).message))}>下载旧草稿备份</button>。</>}</p>
+   {!!sync.archivedDrafts&&<p className="browser-draft-note">旧来源草稿仍保留：<button className="text-button" onClick={()=>void exportBrowserCaches().then(value=>download('资产罗盘-浏览器旧草稿.json',JSON.stringify(value,null,2),'application/json')).catch(error=>toast.error((error as Error).message))}>下载旧草稿备份</button>。</p>}
    {saveState==='saving'&&<p className="browser-draft-note" role="status">正在保存到 NAS…</p>}{saveState==='saved'&&<p className="browser-draft-note" role="status">上次确认已保存到 NAS。</p>}
    {saveError&&<div className="connection-notice" role="alert"><span>保存失败，输入已保留。{saveError}</span></div>}
    {sync.canReprepare&&<p className="browser-draft-note">{sync.warning} {sync.canRetrySave&&<button className="text-button" disabled={busy} onClick={()=>void continueSave()}>继续上次保存</button>} 可<button className="text-button" disabled={busy} onClick={()=>void reprepareUpload()}>备份并读取正式账本</button>，再核对重填。</p>}

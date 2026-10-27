@@ -23,7 +23,6 @@ export function FeishuConnection({status,busy,onSync}:{status:FeishuStatus;busy:
  const stamp=(value?:string|null)=>value?new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}):'—';
  return <><section className="panel feishu-settings"><div className="panel-heading"><div><h2><Cloud size={17}/>财务管理</h2></div><span className={`connection-badge ${status.linked?'connected':''}`}>{status.linked?'已连接':'待连接'}</span></div><div className="connection-body">
   <div className="feishu-connection-facts"><div><small>应用配置</small><strong>{status.configured?'已配置':'未配置'}</strong></div><div><small>最近保存</small><strong>{stamp(status.lastSyncedAt)}</strong></div><div><small>最近读取</small><strong>{stamp(status.lastPulledAt)}</strong></div></div>
-  {!status.linked&&<p className="sync-message">读取 NAS 正式账本后可编辑，点击保存或确认更新后直接保存到 NAS。</p>}
   {(status.error||status.warning)&&<p className="sync-message" role="status">{status.error||status.warning}</p>}
   {!status.configured&&<p className="sync-message">请在 NAS 服务端配置数据库连接，再重新启动服务。</p>}
   <div className="sync-footer"><span>{status.canRetrySave?'上次保存待完成':status.dirty?'有未确认输入':status.linked?'已读取NAS':'尚未连接'}</span>{status.url&&<a className="text-button" href={status.url} target="_blank" rel="noreferrer">打开NAS <ExternalLink size={12}/></a>}<button className="button primary" disabled={busy||status.syncing||status.configured===false} onClick={()=>void onSync(target)}><Link2 size={14}/>{busy?'处理中…':status.linked?'读取NAS':'连接并读取'}</button></div>

@@ -1,6 +1,6 @@
 import {useEffect,useState,type FormEvent} from 'react';
 import {createRoot} from 'react-dom/client';
-import {Compass,LockKeyhole} from 'lucide-react';
+import {Compass} from 'lucide-react';
 import FinanceApp from '@/components/finance-app';
 import {setAccount} from './cache';
 import '@/app/globals.css';
@@ -19,6 +19,6 @@ function Root(){
  }
  async function logout(){try{const res=await fetch('/api/logout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});if(!res.ok)throw Error();setAccount('');setUser(false);setError('');}catch{window.alert('退出失败，请恢复网络后重试。');}}
  if(user)return <FinanceApp onLogout={()=>void logout()}/>;
- return <main className="web-login"><section className="web-login-card"><div className="login-brand"><Compass size={30}/><span>资产罗盘</span></div><h1>你的资产，清晰在握</h1><p>连接NAS账本，查看和更新资产。</p>{loading?<p role="status">正在连接…</p>:<form onSubmit={login}><label htmlFor="password">密码</label><input id="password" name="password" type="password" autoComplete="current-password" required maxLength={512} disabled={busy}/>{error&&<p className="login-error" role="alert">{error}</p>}<button className="button primary" disabled={busy}>{busy?'正在登录…':'登录账本'}</button></form>}<div className="login-note"><LockKeyhole size={16}/><span>点击保存或确认更新后直接保存到NAS。</span></div></section></main>;
+ return <main className="web-login"><section className="web-login-card"><div className="login-brand"><Compass size={30}/><span>资产罗盘</span></div>{loading?<p role="status">正在连接…</p>:<form onSubmit={login}><label htmlFor="password">密码</label><input id="password" name="password" type="password" autoComplete="current-password" required maxLength={512} disabled={busy}/>{error&&<p className="login-error" role="alert">{error}</p>}<button className="button primary" disabled={busy}>{busy?'正在登录…':'登录账本'}</button></form>}</section></main>;
 }
 createRoot(document.getElementById('root')!).render(<Root/>);
