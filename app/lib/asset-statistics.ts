@@ -1,7 +1,7 @@
 import {convert,type Asset,type Book} from './finance.ts';
 import {assetClassification} from './classification.ts';
 import {roundMoney,investmentRows} from './investing.ts';
-import {accountClassification,capitalAccounts} from './capital-accounts.ts';
+import {accountClassification,capitalAccounts,assetFinancialRows} from './capital-accounts.ts';
 
 export function assetSummary(assets:Asset[],base:string,rates:Book['rates']){
  let investment=0,cash=0;
@@ -14,13 +14,35 @@ export function assetSummary(assets:Asset[],base:string,rates:Book['rates']){
  return {value:roundMoney(investment+cash),investment:roundMoney(investment),cash:roundMoney(cash),count:assets.length,native:Object.fromEntries(Object.entries(native).map(([currency,value])=>[currency,roundMoney(value)]))};
 }
 
+type FinancialRow=ReturnType<typeof assetFinancialRows>[number];
+function financialSummary(book:Book,base:string,assets:Asset[],financials:Map<string,FinancialRow>){
+ const summary=assetSummary(assets,base,book.rates),nativeCosts:Record<string,number|null>={};
+ let costCny:number|null=0;
+ for(const asset of assets){
+  const row=financials.get(asset.id),known=row?.netInputCny!=null&&row.netInput!=null;
+  costCny=costCny===null||!known?null:costCny+row.netInputCny!;
+  const native=nativeCosts[asset.currency];
+  nativeCosts[asset.currency]=native===null||!known?null:roundMoney((native??0)+row.netInput!);
+ }
+ if(costCny!==null)costCny=roundMoney(costCny);
+ const valueCny=assets.reduce((sum,asset)=>sum+asset.value*book.rates[asset.currency],0);
+ const gainCny=costCny===null?null:roundMoney(valueCny-costCny);
+ return {...summary,costCny,gainCny,nativeCosts,cost:costCny===null?null:roundMoney(convert(costCny,'CNY',base,book.rates)),gain:gainCny===null?null:roundMoney(convert(gainCny,'CNY',base,book.rates))};
+}
+
+/** Sum only selected rows using their original funding costs, never today's FX. */
+export function assetFinancialSummary(book:Book,base:string,assets=book.assets){
+ return financialSummary(book,base,assets,new Map(assetFinancialRows(book).map(row=>[row.assetId,row])));
+}
+
 export function assetGroupSummaries(book:Book,base:string,kind:'classification'|'currency'|'platform',assets=book.assets){
  const grouped=new Map<string,Asset[]>();
+ const financials=new Map(assetFinancialRows(book).map(row=>[row.assetId,row]));
  for(const asset of assets){
   const name=kind==='classification'?accountClassification(asset):asset[kind];
   const rows=grouped.get(name)??[];rows.push(asset);grouped.set(name,rows);
  }
- return [...grouped].map(([name,rows])=>({name,...assetSummary(rows,base,book.rates)})).sort((a,b)=>b.value-a.value||a.name.localeCompare(b.name));
+ return [...grouped].map(([name,rows])=>({name,...financialSummary(book,base,rows,financials)})).sort((a,b)=>b.value-a.value||a.name.localeCompare(b.name));
 }
 
 export function classificationSummaries(book:Book,base:string){return assetGroupSummaries(book,base,'classification');}

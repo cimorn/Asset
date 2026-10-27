@@ -332,6 +332,13 @@ button.asset-label:hover strong{color:#597da7}
 .summary-total-row{background:#f5f7fa!important;font-weight:500}
 .summary-total-row td{border-top:1px solid #e5eaf1}
 .summary-empty{text-align:center!important;padding:28px!important;color:#77818e}
+.view-summary.asset-cost-summary{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:10px}
+.asset-cost-note{margin:0 4px 20px;font-size:11px;line-height:1.7;color:#738092}
+.asset-group-financials{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:18px 28px;margin:0;text-align:right}
+.asset-group-financials dt{font-size:11px;font-weight:400;color:#748092}
+.asset-group-financials dd{margin:6px 0 0;font-size:17px;line-height:1.4;font-weight:550;font-variant-numeric:tabular-nums;white-space:nowrap}
+.asset-table .historical-cost{background:#f9fbfe}
+@media(max-width:780px){.view-summary.asset-cost-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.view-summary.asset-cost-summary>div:last-child{grid-column:auto;padding-top:0;border-top:0}.view-summary.asset-cost-summary>div:nth-child(odd){border-right:1px solid #edf0f5}.asset-group-heading:has(.asset-group-financials){flex-wrap:wrap;gap:18px}.asset-group-financials{flex:1 1 100%;justify-content:space-between;text-align:left;gap:12px}.asset-group-financials dd{font-size:14px}.asset-cost-note{font-size:11px}}
 @media(max-width:1100px){.classification-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-classification-curves{gap:16px}.overview-classification-curves .panel-heading{padding:18px 16px}.overview-classification-curves .monthly-chart{padding:0 4px 12px}}
 @media(max-width:760px){.overview-main-curves,.overview-classification-curves{grid-template-columns:1fr}.overview-classification-curves .monthly-chart{height:240px;padding:0 12px 12px}}
 @media(max-width:480px){.classification-summary-grid{grid-template-columns:1fr;gap:12px}.classification-summary-grid .wealth-card{grid-column:auto}.overview-main-curves .trend-chart,.overview-main-curves .monthly-chart{height:240px;padding:0 8px 12px}.group-summary-table th,.group-summary-table td{padding:14px 18px}}
