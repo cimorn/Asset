@@ -1,0 +1,20 @@
+/* Background layers move independently; the sidebar and dialogs retain their normal anchors. */
+.main-shell.atlas-motion-shell{position:relative;isolation:isolate}
+.atlas-page-background{position:fixed;inset:-90px 0;z-index:-1;pointer-events:none;overflow:hidden;background:linear-gradient(155deg,#f3f6fa 0%,#f6f8fa 48%,#f0f5f5 100%)}
+.atlas-page-background::before,.atlas-page-background::after{content:"";position:absolute;inset:0;will-change:transform}
+.atlas-page-background::before{background:radial-gradient(ellipse 62% 52% at 14% 12%,#acc7e84d,transparent 74%);transform:translate3d(0,var(--parallax-near,0px),0)}
+.atlas-page-background::after{background:radial-gradient(ellipse 52% 46% at 94% 79%,#aed2c733,transparent 76%);transform:translate3d(0,var(--parallax-far,0px),0)}
+[data-scroll-reveal="pending"]{opacity:0;translate:0 20px}
+[data-scroll-reveal="revealing"]{animation:atlas-scroll-in .56s cubic-bezier(.2,.65,.25,1) var(--reveal-delay,0ms) both}
+[data-scroll-reveal]:focus-within{opacity:1;translate:none;animation:none}
+@keyframes atlas-scroll-in{from{opacity:0;translate:0 20px}to{opacity:1;translate:0 0}}
+@media(max-width:650px){
+ [data-scroll-reveal="pending"]{translate:0 12px}
+ [data-scroll-reveal="revealing"]{animation-duration:.42s}
+ @keyframes atlas-scroll-in{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
+}
+@media(prefers-reduced-motion:reduce){
+ .atlas-page-background::before,.atlas-page-background::after{transform:none;will-change:auto}
+ [data-scroll-reveal]{opacity:1;translate:none;animation:none}
+}
+@media print{.atlas-page-background{display:none}[data-scroll-reveal]{opacity:1;translate:none;animation:none}}

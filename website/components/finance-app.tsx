@@ -1,5 +1,6 @@
 'use client';
 import ClassificationForm from './finance-classification';
+import FinancePageMotion from './finance-page-motion';
 import RecordEditForm from './finance-record-edit';
 import {useState,useEffect,useRef,useMemo} from 'react';
 import {financeRequest as fetch,exportBrowserCaches} from '@/src/cache';
@@ -128,7 +129,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
    <SidebarContent><SidebarMenu>{navigation.map(([id,label,Icon])=><SidebarMenuItem key={id}><SidebarMenuButton isActive={page===id} onClick={()=>navigate(id)} className="nav-button"><Icon/><span>{label}</span></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarContent>
    <SidebarFooter><SidebarMenuButton isActive={page==='settings'} onClick={()=>navigate('settings')}><Settings2/>设置与汇率</SidebarMenuButton><SidebarMenuButton className="web-logout" onClick={onLogout}>退出登录</SidebarMenuButton></SidebarFooter>
   </Sidebar>
-  <main className="main-shell"><div className="page-content">
+  <main className="main-shell atlas-motion-shell"><FinancePageMotion/><div className="page-content">
    <div className="page-heading">
     <div className="page-title"><SidebarTrigger aria-label="展开或收起侧栏"/><h1>{title}</h1></div>
     <div className="heading-actions">
