@@ -42,7 +42,8 @@
 .web-login .button { min-height: 44px; margin-top: 8px; font-size: 14px; }
 .web-login .login-error { font-size: 13px; color: #a9343e; line-height: 20px; }
 .browser-draft-note { color: #656e7b; font-size: 12px; margin: 0 0 16px; line-height: 20px; }
-.web-logout { color: #656e7b; font-size: 12px!important; margin-top: 4px; }
+.web-logout { color: #656e7b; }
+.heading-rate-date { color:#66758c; font-size:12px; line-height:16px; white-space:nowrap; font-variant-numeric:tabular-nums; }
 
 @media (max-width: 520px) {
   .web-login-card { padding: 24px; }
