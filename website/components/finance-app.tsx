@@ -5,7 +5,7 @@ import RecordEditForm from './finance-record-edit';
 import {useState,useEffect,useRef,useMemo} from 'react';
 import {financeRequest as fetch,exportBrowserCaches} from '@/src/cache';
 import type {RateDraft} from '@/lib/exchange';
-import {Compass,LayoutDashboard,Wallet,History,Settings2,Plus,Download,ShieldCheck,Eye,EyeOff,Upload,RefreshCw,Globe2,Building2,Cloud} from 'lucide-react';
+import {Compass,LayoutDashboard,Wallet,History,Settings2,LogOut,Plus,Download,ShieldCheck,Eye,EyeOff,Upload,RefreshCw,Cloud} from 'lucide-react';
 import {SidebarProvider,Sidebar,SidebarHeader,SidebarContent,SidebarFooter,SidebarMenu,SidebarMenuItem,SidebarMenuButton,SidebarTrigger} from '@/components/ui/sidebar';
 import {AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog';
 import {Tabs,TabsList,TabsTrigger} from '@/components/ui/tabs';
@@ -16,7 +16,6 @@ import {CurrencySelect} from './finance-dashboard';
 import Overview from './finance-overview';
 import {AssetForm,ImportForm} from './finance-forms';
 import {AssetView,RecordView,SettingsView} from './finance-views';
-import {GroupedAssetView} from './finance-asset-list';
 import IconForm from './finance-icon-form';
 import TradeForm from './finance-trade';
 import InvestmentWorkspace from './finance-investments';
@@ -24,13 +23,14 @@ import UpdateDates from './finance-update-dates';
 import {assetUpdateHistory,type UpdateStatus} from '@/lib/asset-update-dates';
 import {FeishuConnection,type FeishuStatus} from './finance-connections';
 
-const navigation=[['overview','资产总览',LayoutDashboard],['assets','全部资产',Wallet],['currencies','币种分布',Globe2],['platforms','平台账户',Building2],['records','流水明细',History]] as const;
+const navigation=[['overview','资产总览',LayoutDashboard],['assets','全部资产',Wallet],['records','流水明细',History]] as const;
+type Page=(typeof navigation)[number][0]|'settings';
 function download(name:string,text:string,type:string){const url=URL.createObjectURL(new Blob([text],{type}));const anchor=document.createElement('a');anchor.href=url;anchor.download=name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
 export default function FinanceApp({onLogout}:{onLogout:()=>void}){
  const [book,setBook]=useState<Book>(emptyBook),[version,setVersion]=useState(0),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[loadError,setLoadError]=useState(''),[signIn,setSignIn]=useState('');
  const [sidebarOpenMobile,setSidebarOpenMobile]=useState(false);
- const [page,setPage]=useState('overview'),[assetTab,setAssetTab]=useState('holdings'),[base,setBase]=useState('CNY'),[hidden,setHidden]=useState(false);
+ const [page,setPage]=useState<Page>('overview'),[assetTab,setAssetTab]=useState('holdings'),[base,setBase]=useState('CNY'),[hidden,setHidden]=useState(false);
  const [updateFilter,setUpdateFilter]=useState<{date:string;status:UpdateStatus}>({date:'',status:'all'});
  const updateHistory=useMemo(()=>assetUpdateHistory(book),[book]);
  const updateDate=updateHistory.dates.includes(updateFilter.date)?updateFilter.date:updateHistory.dates[0]??'';
@@ -101,7 +101,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
    if(result.sync)setSync(result.sync);
    if(!response.ok||result.sync?.error||result.sync?.warning){await load();throw new Error(result.error||result.sync?.error||result.sync?.warning||'连接失败');}
    loadSequence.current++;setBook(result.book);setVersion(result.version);setRateDraft(result.rateDraft??null);setReady(result.ready!==false);setLoadError('');if(!ready)setBase(result.book.base);
-   if(result.ready!==false)toast.success('已读取 NAS 账本');return result.ready!==false;
+   return result.ready!==false;
   }catch(error){toast.error((error as Error).message,{duration:7000});return false;}finally{lock.current=false;setBusy(false);}
  }
  const changeBase=async(value:string)=>{if(await save({type:'base',base:value}))setBase(value);};
@@ -118,21 +118,26 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
  const classify=(asset:Asset)=>{setPage('assets');setEditing(asset);setModal('classify');};
  const editIcon=(asset:Asset)=>{setPage('assets');setIconAsset(asset);};
  const editRecord=(id:string)=>{setEditingRecord(id);setModal('record');};
- const navigate=(value:string)=>{setSidebarOpenMobile(false);setModal(null);setIconAsset(null);setRemove(null);setPage(value);};
+ const navigate=(value:Page)=>{setSidebarOpenMobile(false);setModal(null);setIconAsset(null);setRemove(null);setPage(value);};
  const currentAsset=editing?(book.assets.find(asset=>asset.id===editing.id)??editing):undefined;
  const title=navigation.find(item=>item[0]===page)?.[1]??'设置与汇率';
+ const ledgerNotice=sync.configured===false?(ready?'服务端待配置 · 显示缓存':'服务端待配置'):!ready?'正在读取 NAS 账本…':sync.error?'NAS 读写失败，输入已保留':sync.canRetrySave?'保存待完成，输入已保留':sync.dirty?'有未确认的输入':'';
 
  return <SidebarProvider openMobile={sidebarOpenMobile} onOpenMobileChange={setSidebarOpenMobile} style={{'--sidebar-width':'200px'} as React.CSSProperties}>
   <Toaster position="top-center" richColors/>
   <Sidebar className="atlas-sidebar">
    <SidebarHeader><div className="brand"><span><Compass size={24} strokeWidth={1.5} aria-hidden="true"/></span><div>资产罗盘</div></div></SidebarHeader>
    <SidebarContent><SidebarMenu>{navigation.map(([id,label,Icon])=><SidebarMenuItem key={id}><SidebarMenuButton isActive={page===id} onClick={()=>navigate(id)} className="nav-button"><Icon/><span>{label}</span></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarContent>
-   <SidebarFooter><SidebarMenuButton isActive={page==='settings'} onClick={()=>navigate('settings')}><Settings2/>设置与汇率</SidebarMenuButton><SidebarMenuButton className="web-logout" onClick={onLogout}>退出登录</SidebarMenuButton></SidebarFooter>
+   <SidebarFooter className="web-sidebar-footer flex-row items-center">
+    <SidebarMenuButton className="min-w-0 flex-1" isActive={page==='settings'} onClick={()=>navigate('settings')}><Settings2/><span>设置与汇率</span></SidebarMenuButton>
+    <SidebarMenuButton type="button" className="web-logout size-8 shrink-0 justify-center" aria-label="退出登录" title="退出登录" onClick={onLogout}><LogOut aria-hidden="true"/></SidebarMenuButton>
+   </SidebarFooter>
   </Sidebar>
   <main className="main-shell atlas-motion-shell"><FinancePageMotion/><div className="page-content">
    <div className="page-heading">
     <div className="page-title"><SidebarTrigger aria-label="展开或收起侧栏"/><h1>{title}</h1></div>
     <div className="heading-actions">
+     {ready&&book.rateDate&&<span className="heading-rate-date">汇率日期 · <time dateTime={book.rateDate}>{book.rateDate}</time></span>}
      <button className="icon-button" title={hidden?'显示金额':'隐藏金额'} aria-label={hidden?'显示金额':'隐藏金额'} onClick={()=>setHidden(!hidden)}>{hidden?<EyeOff size={16}/>:<Eye size={16}/>}</button>
      <button className="icon-button" title="读取最新账本" aria-label="读取最新账本" disabled={busy} onClick={()=>void load(false,true)}><RefreshCw size={15}/></button>
      {page==='assets'&&<CurrencySelect book={book} value={base} onChange={changeBase}/>}
@@ -154,12 +159,10 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
     <Tabs value={assetTab} onValueChange={setAssetTab} className="asset-page-tabs"><TabsList><TabsTrigger value="holdings">资产明细</TabsTrigger><TabsTrigger value="earnings">收益明细</TabsTrigger><TabsTrigger value="updates">更新记录</TabsTrigger></TabsList></Tabs>
     {assetTab==='updates'?<><UpdateDates history={updateHistory} date={updateDate} status={updateFilter.status} onSelect={(date,status)=>setUpdateFilter({date,status})}/><AssetView book={book} base={base} filter={{}} updateFilter={{date:updateDate,status:updateFilter.status}} onClearUpdate={()=>setUpdateFilter({date:updateDate,status:'all'})} showSummary={false} onEdit={edit} onUpdate={update} onClassify={classify} onIcon={editIcon} hidden={hidden}/></>:assetTab==='holdings'?<AssetView book={book} base={base} filter={{}} onEdit={edit} onUpdate={update} onClassify={classify} onIcon={editIcon} hidden={hidden}/>:<InvestmentWorkspace book={book} base={base} hidden={hidden} onIcon={editIcon}/>}
    </>}
-   {page==='currencies'&&<GroupedAssetView book={book} base={base} kind="currency" hidden={hidden}/>}
-   {page==='platforms'&&<GroupedAssetView book={book} base={base} kind="platform" hidden={hidden}/>}
    {page==='records'&&<RecordView book={book} hidden={hidden} onEdit={editRecord}/>}
    {page==='settings'&&<SettingsView book={book} onSave={save} busy={busy} sync={sync} onSync={syncBook} draft={rateDraft} onDraftChange={changeRateDraft} onBackup={()=>download(`资产罗盘-完整备份-${today()}.json`,JSON.stringify({format:'finance-atlas',version:1,exportedAt:new Date().toISOString(),book},null,2),'application/json')}/>}
    </>}
-   <footer className="page-footer"><span title={sync.error||sync.warning||undefined}>{sync.linked?<Cloud size={13}/>:<ShieldCheck size={13}/>} {sync.configured===false?(ready?'服务端待配置 · 显示缓存':'服务端待配置'):!ready?'正在读取 NAS 账本…':sync.error?'NAS 读写失败，输入已保留':sync.canRetrySave?'保存待完成，输入已保留':sync.dirty?'有未确认的输入':'已读取 NAS 账本'}</span>{ready&&book.rateDate&&<span>汇率日期 · {book.rateDate}</span>}</footer>
+   {ledgerNotice&&<footer className="page-footer"><span title={sync.error||sync.warning||undefined}>{sync.linked?<Cloud size={13}/>:<ShieldCheck size={13}/>} {ledgerNotice}</span></footer>}
   </div></main>
   {page==='records'&&modal==='record'&&editingRecord&&<RecordEditForm key={editingRecord} book={book} id={editingRecord} busy={busy} onSave={save} onClose={()=>setModal(null)}/>}
   {page==='assets'&&modal==='trade'&&currentAsset&&<TradeForm book={book} asset={currentAsset} busy={busy} onSave={save} onEdit={()=>setModal('asset')} onClose={()=>setModal(null)}/>}

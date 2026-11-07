@@ -1,5 +1,7 @@
 const axisNumber=new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2});
-export function chartAmount(value:number){return `${new Intl.NumberFormat('zh-CN',{maximumFractionDigits:Math.abs(value)>=1000?2:4}).format(value/10000)}W`;}
+export function chartAmount(value:number){
+ return Math.abs(value)<10000?axisNumber.format(value):`${axisNumber.format(value/10000)}万`;
+}
 export function chartPercent(value:number){return `${axisNumber.format(value)}%`;}
 export function chartTime(date:string){return Date.parse(`${date}T00:00:00Z`);}
 export function chartDate(value:number){return new Date(value).toISOString().slice(0,10);}

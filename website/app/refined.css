@@ -306,28 +306,58 @@ button.asset-label:hover strong{color:#597da7}
 .platform-detail-group .asset-table th{border-top:0}
 .platform-asset-details>.empty-inline{background:#fff;border:1px solid #e6ebf2;border-radius:12px}
 @media(max-width:640px){.platform-asset-details{padding:12px;gap:16px}.platform-detail-group .asset-group-heading{padding:16px}.platform-detail-group .asset-group-title{gap:9px}.platform-detail-group .asset-group-title h2{font-size:14px}}
-.classification-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:20px}
-.classification-summary-grid .wealth-card,.classification-summary-grid .stat-card{
- min-width:0;padding:16px;border:1px solid var(--atlas-border);border-radius:12px;background:#fff;box-shadow:none
+.classification-summary-grid {
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ gap:16px;
+ margin-bottom:24px;
+ font-variant-numeric:tabular-nums;
 }
-.classification-summary-grid .wealth-card.currency-themed{border-top:2px solid #879cb7}
-.classification-summary-grid .wealth-value,.classification-summary-grid .stat-card>strong{
- margin:12px 0 0;font-size:clamp(20px,1.65vw,28px);line-height:32px;letter-spacing:0;white-space:nowrap
+.portfolio-table-frame {
+ min-width:0;
+ overflow-x:auto;
+ border-color:var(--atlas-border);
+ border-radius:12px;
+ box-shadow:none;
 }
-.classification-summary-grid .wealth-card .wealth-value{color:#2d4563}
-.classification-summary-grid .stat-card>strong{font-weight:500}
-.classification-summary-grid .stat-label,.classification-summary-grid .card-top{height:20px;margin:0}
-.classification-summary-grid .stat-label,.classification-summary-grid .card-top>span:first-child{color:#4e5968;font-size:12px}
-.classification-summary-grid .card-top .currency-code,.classification-share{
- padding:0;background:transparent;color:#5e6a7a;font-size:11px;font-weight:500;letter-spacing:0;font-variant-numeric:tabular-nums
+.portfolio-table-frame:focus-visible{outline:2px solid #54788d;outline-offset:2px}
+.portfolio-table {
+ width:100%;
+ min-width:21rem;
+ table-layout:fixed;
+ border-collapse:collapse;
+ color:#374252;
+ font-size:14px;
+ line-height:20px;
 }
-.summary-performance{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1.1fr) minmax(0,.9fr);gap:8px;margin:12px 0 0;padding-top:12px;border-top:1px solid var(--atlas-border)}
-.summary-performance dt{font-size:11px;line-height:16px;color:#656e7b;font-weight:400}
-.summary-performance dd{margin:4px 0 0;font-size:12px;font-weight:500;line-height:16px;white-space:nowrap;font-variant-numeric:tabular-nums;color:#374252}
-.summary-performance dd.positive{color:#3d8378}.summary-performance dd.negative{color:#b75e69}
+.portfolio-table th,.portfolio-table td {
+ padding:16px 12px;
+ text-align:left;
+ vertical-align:middle;
+ overflow-wrap:anywhere;
+}
+.portfolio-table th:first-child,.portfolio-table td:first-child{padding-inline-start:24px}
+.portfolio-table th:last-child,.portfolio-table td:last-child{padding-inline-end:24px}
+.portfolio-table thead th {
+ padding-block:12px;
+ color:#656e7b;
+ background:var(--atlas-soft);
+ border-bottom:1px solid var(--atlas-border);
+ font-size:12px;
+ font-weight:500;
+ line-height:16px;
+}
+.portfolio-table thead th:first-child{width:22%}
+.portfolio-table thead th:last-child{width:16%}
+.portfolio-table tbody tr+tr>*{border-top:1px solid var(--atlas-border)}
+.portfolio-table tbody th,.portfolio-table-value{font-weight:600}
+.portfolio-table-share{display:block;margin-top:2px;color:#5e6a7a;font-size:12px;font-weight:400;line-height:16px}
+.portfolio-table-empty{color:#656e7b}
+.trend-title>span{color:#5e6a7a;font-size:12px;line-height:16px}
+.trend-title{display:flex;align-items:baseline;gap:8px}
 .overview-main-curves,.overview-classification-curves{display:grid;gap:16px;margin-bottom:24px}
 .overview-main-curves{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
-.overview-classification-curves{grid-template-columns:repeat(2,minmax(0,1fr))}
+.overview-classification-curves{grid-template-columns:repeat(3,minmax(0,1fr))}
 .overview-main-curves .trend-chart,.overview-main-curves .monthly-chart{height:280px;padding:0 12px 16px}
 .overview-classification-curves .monthly-chart{height:224px;padding:0 12px 12px}
 .overview-main-curves .panel-heading,.overview-classification-curves .panel-heading{min-height:64px;padding:16px 20px}
@@ -353,19 +383,19 @@ button.asset-label:hover strong{color:#597da7}
 @media(max-width:480px){.group-summary-table th,.group-summary-table td{padding:14px 18px}}
 .trade-help{font-size:12px;line-height:1.7;color:#737a85;margin:14px 0}
 .trade-preview .cash-effect{grid-column:1/-1;padding-top:12px;border-top:1px solid #e2e7ef}
-@media(min-width:1380px){
- .classification-summary-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
- .classification-summary-grid .wealth-card,.classification-summary-grid .stat-card{padding:16px 12px}
- .summary-performance{gap:4px}.summary-performance dd{font-size:11px}
- .overview-classification-curves{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1023px){
+ .overview-classification-curves{grid-template-columns:minmax(0,1fr)}
 }
-@media(max-width:950px){.classification-summary-grid .wealth-card{grid-column:auto}}
 @media(max-width:760px){
- .overview-main-curves,.overview-classification-curves{grid-template-columns:minmax(0,1fr)}
+ .classification-summary-grid{gap:12px}
+ .portfolio-table{font-size:12px;line-height:16px}
+ .portfolio-table th,.portfolio-table td{padding-inline:4px}
+ .portfolio-table th:first-child,.portfolio-table td:first-child{padding-inline-start:12px}
+ .portfolio-table th:last-child,.portfolio-table td:last-child{padding-inline-end:12px}
+ .overview-main-curves{grid-template-columns:minmax(0,1fr)}
  .overview-main-curves .panel-heading,.overview-classification-curves .panel-heading{padding:16px;flex-wrap:wrap}
  .overview-main-curves .trend-chart,.overview-main-curves .monthly-chart,.overview-classification-curves .monthly-chart{height:280px;padding:0 8px 16px}
  .overview-main-curves .recharts-cartesian-axis-tick-label,.overview-classification-curves .recharts-cartesian-axis-tick-label{font-size:12px}
 }
-@media(max-width:480px){.classification-summary-grid{grid-template-columns:1fr}}
 
 .operation-rates{padding:16px 18px;margin:12px 0;background:#f4f7fb;border:1px solid #dce5f0;border-radius:12px}.operation-rates strong{font-size:13px;color:#486989}.operation-rates p{font-size:12px;color:#7b899a;margin:6px 0 12px;line-height:1.6}.operation-rates-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}.operation-rates-fields label{font-size:12px;color:#697b91}.operation-rates-fields input{display:block;width:100%;margin-top:6px}.operation-rates-confirmed{font-size:12px;color:#728b7d;margin:2px 0 8px}@media(max-width:500px){.operation-rates-fields{grid-template-columns:1fr}}

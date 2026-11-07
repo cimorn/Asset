@@ -33,7 +33,7 @@ export default function InvestmentWorkspace({book,base,hidden,onIcon}:{book:Book
  </div>;
 }
 
-const curves={total:{title:'收益率',color:'#586a83'},股票:{title:'股市收益率曲线',color:'#54788d'},黄金:{title:'黄金收益率曲线',color:'#97743e'},虚拟币:{title:'虚拟币收益率曲线',color:'#786888'}};
+const curves={total:{title:'收益率',color:'#586a83'},股票:{title:'股市收益率',color:'#54788d'},黄金:{title:'黄金收益率',color:'#97743e'},虚拟币:{title:'虚拟币收益率',color:'#786888'}};
 export function IncomeCurve({book,history,hidden,kind}:{book:Book;history:GainSnapshot[];hidden:boolean;kind:keyof typeof curves}){
  const curve=curves[kind],percentage=true;
  const trend=history.map(snapshot=>{
@@ -47,7 +47,7 @@ export function IncomeCurve({book,history,hidden,kind}:{book:Book;history:GainSn
    {available&&!hidden?<ResponsiveContainer width="100%" height="100%" minWidth={0} initialDimension={{width:300,height:240}}><AreaChart data={trend} margin={{top:16,left:0,right:18,bottom:10}}>
     {chartEndpointTicks(values).map(value=><ReferenceLine className="chart-endpoint-guide" key={'y-'+value} y={value} zIndex={50} stroke="#d5dde8" strokeWidth={1} strokeDasharray="3 6"/>)}
     <XAxis height={42} tickMargin={16} padding={{left:10,right:8}} dataKey="time" type="number" scale="time" domain={['dataMin','dataMax']} ticks={chartEndpointTicks(trend.map(point=>point.gain===null?null:point.time))} tickFormatter={chartMonth} axisLine={false} tickLine={false} interval={0} tick={{fontSize:11,fill:'#737a85'}}/><YAxis width={72} tickMargin={14} axisLine={false} tickLine={false} tick={{fontSize:11,fill:'#737a85'}} tickFormatter={percentage?chartPercent:chartAmount} domain={chartBounds(values)} ticks={chartEndpointTicks(values)} interval={0}/>
-    <Tooltip cursor={false} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} labelFormatter={value=>chartDate(Number(value))} formatter={value=>percentage?`${amountText(Number(value))}%`:money(Number(value),'CNY')}/><Area isAnimationActive={false} dataKey="gain" name={curve.title.replace('曲线','')} type="monotone" stroke={curve.color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" fill="none" connectNulls={false} dot={({cx,cy,index})=>index===first||index===last?<ChartEndpoint key={index} cx={cx} cy={cy} color={curve.color}/>:<g key={index}/>} activeDot={{r:5,fill:curve.color,stroke:'white',strokeWidth:2.5}}/>
+    <Tooltip cursor={false} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} labelFormatter={value=>chartDate(Number(value))} formatter={value=>percentage?`${amountText(Number(value))}%`:money(Number(value),'CNY')}/><Area isAnimationActive={false} dataKey="gain" name={curve.title} type="monotone" stroke={curve.color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" fill="none" connectNulls={false} dot={({cx,cy,index})=>index===first||index===last?<ChartEndpoint key={index} cx={cx} cy={cy} color={curve.color}/>:<g key={index}/>} activeDot={{r:5,fill:curve.color,stroke:'white',strokeWidth:2.5}}/>
    </AreaChart></ResponsiveContainer>:<div className="empty-inline"><TrendingUp size={26}/><p>{hidden?'金额已隐藏':'暂无收益记录'}</p></div>}
  </div></section>;
 }
