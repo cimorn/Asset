@@ -101,7 +101,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
    if(result.sync)setSync(result.sync);
    if(!response.ok||result.sync?.error||result.sync?.warning){await load();throw new Error(result.error||result.sync?.error||result.sync?.warning||'连接失败');}
    loadSequence.current++;setBook(result.book);setVersion(result.version);setRateDraft(result.rateDraft??null);setReady(result.ready!==false);setLoadError('');if(!ready)setBase(result.book.base);
-   if(result.ready!==false)toast.success('已读取NAS');return result.ready!==false;
+   if(result.ready!==false)toast.success('已读取 NAS 账本');return result.ready!==false;
   }catch(error){toast.error((error as Error).message,{duration:7000});return false;}finally{lock.current=false;setBusy(false);}
  }
  const changeBase=async(value:string)=>{if(await save({type:'base',base:value}))setBase(value);};
@@ -125,7 +125,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
  return <SidebarProvider openMobile={sidebarOpenMobile} onOpenMobileChange={setSidebarOpenMobile} style={{'--sidebar-width':'200px'} as React.CSSProperties}>
   <Toaster position="top-center" richColors/>
   <Sidebar className="atlas-sidebar">
-   <SidebarHeader><div className="brand"><span><Compass size={25}/></span><div>资产罗盘</div></div></SidebarHeader>
+   <SidebarHeader><div className="brand"><span><Compass size={24} strokeWidth={1.5} aria-hidden="true"/></span><div>资产罗盘</div></div></SidebarHeader>
    <SidebarContent><SidebarMenu>{navigation.map(([id,label,Icon])=><SidebarMenuItem key={id}><SidebarMenuButton isActive={page===id} onClick={()=>navigate(id)} className="nav-button"><Icon/><span>{label}</span></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarContent>
    <SidebarFooter><SidebarMenuButton isActive={page==='settings'} onClick={()=>navigate('settings')}><Settings2/>设置与汇率</SidebarMenuButton><SidebarMenuButton className="web-logout" onClick={onLogout}>退出登录</SidebarMenuButton></SidebarFooter>
   </Sidebar>
@@ -142,11 +142,11 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
     </div>
    </div>
    {!!sync.archivedDrafts&&<p className="browser-draft-note">旧来源草稿仍保留：<button className="text-button" onClick={()=>void exportBrowserCaches().then(value=>download('资产罗盘-浏览器旧草稿.json',JSON.stringify(value,null,2),'application/json')).catch(error=>toast.error((error as Error).message))}>下载旧草稿备份</button>。</p>}
-   {saveState==='saving'&&<p className="browser-draft-note" role="status">正在保存到 NAS…</p>}{saveState==='saved'&&<p className="browser-draft-note" role="status">上次确认已保存到 NAS。</p>}
+   {saveState==='saving'&&<p className="browser-draft-note" role="status">正在保存到 NAS…</p>}{saveState==='saved'&&<p className="browser-draft-note" role="status">已保存到 NAS</p>}
    {saveError&&<div className="connection-notice" role="alert"><span>保存失败，输入已保留。{saveError}</span></div>}
    {sync.canReprepare&&<p className="browser-draft-note">{sync.warning} {sync.canRetrySave&&<button className="text-button" disabled={busy} onClick={()=>void continueSave()}>继续上次保存</button>} 可<button className="text-button" disabled={busy} onClick={()=>void reprepareUpload()}>备份并读取正式账本</button>，再核对重填。</p>}
    {loadError&&<div className="connection-notice" role="alert"><span>{loadError}</span>{signIn?<a href={signIn}>登录并连接账本</a>:<button onClick={()=>void load(false)}>重新加载账本</button>}</div>}
-   {!ready&&<section className="panel empty-inline" role="status"><Cloud size={24}/><p>{sync.configured===false?'请在 NAS 中配置数据库环境变量后读取账本':'正在读取NAS数据…'}</p></section>}
+   {!ready&&<section className="panel empty-inline" role="status"><Cloud size={24}/><p>{sync.configured===false?'请在 NAS 中配置数据库环境变量后读取账本':'正在读取 NAS 账本…'}</p></section>}
    {!ready&&(page==='settings'||!!sync.error||sync.configured===false)&&<FeishuConnection status={sync} busy={busy} onSync={syncBook}/>}
    {ready&&<>
    {page==='overview'&&<Overview book={book} base={base} hidden={hidden}/>}
@@ -159,7 +159,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
    {page==='records'&&<RecordView book={book} hidden={hidden} onEdit={editRecord}/>}
    {page==='settings'&&<SettingsView book={book} onSave={save} busy={busy} sync={sync} onSync={syncBook} draft={rateDraft} onDraftChange={changeRateDraft} onBackup={()=>download(`资产罗盘-完整备份-${today()}.json`,JSON.stringify({format:'finance-atlas',version:1,exportedAt:new Date().toISOString(),book},null,2),'application/json')}/>}
    </>}
-   <footer className="page-footer"><span title={sync.error||sync.warning||undefined}>{sync.linked?<Cloud size={13}/>:<ShieldCheck size={13}/>} {sync.configured===false?(ready?'服务端待配置 · 显示缓存':'服务端待配置'):!ready?'正在读取NAS…':sync.error?'NAS读取或保存失败 · 输入已保留':sync.canRetrySave?'NAS保存待完成 · 输入已保留':sync.dirty?'NAS账本 · 有未确认输入':'NAS账本 · 已读取'}</span>{ready&&book.rateDate&&<span>汇率日期 · {book.rateDate}</span>}</footer>
+   <footer className="page-footer"><span title={sync.error||sync.warning||undefined}>{sync.linked?<Cloud size={13}/>:<ShieldCheck size={13}/>} {sync.configured===false?(ready?'服务端待配置 · 显示缓存':'服务端待配置'):!ready?'正在读取 NAS 账本…':sync.error?'NAS 读写失败，输入已保留':sync.canRetrySave?'保存待完成，输入已保留':sync.dirty?'有未确认的输入':'已读取 NAS 账本'}</span>{ready&&book.rateDate&&<span>汇率日期 · {book.rateDate}</span>}</footer>
   </div></main>
   {page==='records'&&modal==='record'&&editingRecord&&<RecordEditForm key={editingRecord} book={book} id={editingRecord} busy={busy} onSave={save} onClose={()=>setModal(null)}/>}
   {page==='assets'&&modal==='trade'&&currentAsset&&<TradeForm book={book} asset={currentAsset} busy={busy} onSave={save} onEdit={()=>setModal('asset')} onClose={()=>setModal(null)}/>}

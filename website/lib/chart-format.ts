@@ -3,7 +3,7 @@ export function chartAmount(value:number){return `${new Intl.NumberFormat('zh-CN
 export function chartPercent(value:number){return `${axisNumber.format(value)}%`;}
 export function chartTime(date:string){return Date.parse(`${date}T00:00:00Z`);}
 export function chartDate(value:number){return new Date(value).toISOString().slice(0,10);}
-export function chartMonth(value:number){return chartDate(value).slice(2,7).replace('-','');}
+export function chartMonth(value:number){return chartDate(value).slice(0,7);}
 /** Show both visible endpoints and the highest value, sharing a guide when they coincide. */
 export function chartEndpointTicks(values:(number|null|undefined)[]){
  const known=values.filter((value):value is number=>typeof value==='number'&&Number.isFinite(value));
