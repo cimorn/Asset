@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | **English**
 
-Track assets, transactions, exchange rates, and returns across currencies. Use the web app or Windows desktop client with your own MongoDB database. Deploy on any server, computer, or NAS that supports Linux Docker containers. Images support x64 and ARM64.
+Track assets, transactions, exchange rates, and returns across currencies in a web app backed by your own MongoDB database. Deploy on any server, computer, or NAS that supports Linux Docker containers. Images support x64 and ARM64.
 
 ## Docker deployment
 
@@ -19,36 +19,20 @@ docker compose up -d
 docker compose exec asset node scripts/init-ledger.mjs --apply
 ```
 
-Point an HTTPS reverse proxy to the host's `APP_PORT`, preserving the original Host header ---> Open `APP_ORIGIN` ---> Enter your password ---> Set exchange rates under “设置与汇率” (Settings & exchange rates), then add assets. Both clients read the same ledger after you save or confirm an update.
+Point an HTTPS reverse proxy to the host's `APP_PORT`, preserving the original Host header ---> Open `APP_ORIGIN` ---> Enter your password ---> Set exchange rates under “设置与汇率” (Settings & exchange rates), then add assets.
 
 Run initialization only when creating a new ledger; it refuses to overwrite an existing one. Existing deployments must keep their database mounts, passwords, `SESSION_SECRET`, `LEDGER_INSTANCE_ID`, and `LEDGER_ID` when updating.
-
-## Desktop client
-
-Build the Windows executable at `app/dist/资产罗盘.exe`. On first launch, select your personal `nas.env` file:
-
-```dotenv
-NAS_URL=https://asset.example.com
-NAS_PASSWORD=your-login-password
-```
-
-`NAS_URL` is a retained configuration name. It can point to the web service on any Docker host. The client stores the imported configuration at `%APPDATA%/FinanceAtlas/nas.env`.
-
-Open the client ---> Read the server ledger ---> Edit ---> Save or confirm the update. To switch computers, copy the EXE and your configuration file, then select that file on first launch.
 
 ## Development
 
 ```text
-app/                 Windows desktop client: Electron + Vite
 website/             Web frontend and Node.js API
 deploy/docker/       MongoDB initialization
 .github/workflows/   Automated Docker image builds
 docker-compose.yaml  Docker deployment
 ```
 
-Use Node.js 22.13 or a newer compatible version. Install dependencies for each client separately and edit its own directory.
-
-Web app:
+Use Node.js 22.13 or a newer compatible version.
 
 ```sh
 cd website
@@ -62,20 +46,7 @@ npm run dev
 
 Connect to the MongoDB `asset` database with an `asset_app` account that has read/write access to that database only. Use a separate MongoDB instance for development.
 
-Desktop client:
-
-```sh
-cd app
-npm ci
-npm --prefix desktop ci
-npm run build
-npm start
-npm run package
-```
-
-For development, place your personal `nas.env` in `app/`. Packaging writes to `app/dist`; configuration and ledger data are not embedded in the EXE.
-
-Validation: run `npm run typecheck` and `npm test` in the relevant directory. Desktop regression tests require both projects' dependencies and builds.
+In `website/`, run `npm run typecheck` to check types and `npm test` after building.
 
 ## Updates
 
@@ -86,9 +57,7 @@ docker compose pull asset
 docker compose up -d --no-deps asset
 ```
 
-Desktop: run `npm run package` again ---> Replace the old EXE ---> Open it and read the latest ledger.
-
-Ledger content: open either client ---> Edit assets, transactions, or exchange rates ---> Save or confirm the update. Unsaved input stays on the current device; confirm a successful save before switching devices.
+Ledger content: open the web app ---> Edit assets, transactions, or exchange rates ---> Save or confirm the update. Unsaved input stays in the current browser. Confirm a successful save before switching devices.
 
 To roll back the application, set its image to `ghcr.io/cimorn/asset:sha-FULL_COMMIT_HASH`, then update the application container.
 
@@ -96,7 +65,7 @@ To roll back the application, set its image to `ghcr.io/cimorn/asset:sha-FULL_CO
 
 - Current ledger: Settings & exchange rates ---> Download backup ---> Save the JSON file.
 - Full ledger and history: sign in to the web app ---> Open `/api/ledger/backup` on the same domain ---> Save the JSON file.
-- Configuration: back up `.env`, the Compose file in use, and the database mount configuration. Also back up your desktop `nas.env`.
+- Configuration: back up `.env`, the Compose file in use, and the database mount configuration.
 
 A full restore requires an empty target ledger. Install dependencies and build in `website/`, then put the target database configuration in a private `.env`. Preview the restore before applying it:
 
