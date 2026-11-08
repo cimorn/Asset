@@ -25,6 +25,8 @@ docker compose exec asset node scripts/init-ledger.mjs --apply
 
 ## 开发
 
+完整的项目结构、本地运行和发布步骤见 [网页开发说明](DEVELOPMENT.md)。
+
 ```text
 website/             网页前端和 Node.js API
 deploy/docker/       MongoDB 初始化配置
@@ -41,6 +43,8 @@ cp .env.example .env
 # 设置 MONGODB_URI、APP_PASSWORD、SESSION_SECRET、LEDGER_INSTANCE_ID。
 # 本地开发将 APP_ORIGIN 设为 http://localhost:3000。
 npm run build
+# 首次创建空开发账本时执行
+node --env-file=.env scripts/init-ledger.mjs --apply
 npm run dev
 ```
 
@@ -48,9 +52,11 @@ npm run dev
 
 在 `website/` 运行 `npm run typecheck` 检查类型，构建后运行 `npm test`。
 
+修改前端后重新构建并刷新页面，修改服务端后重启 `npm run dev`。
+
 ## 更新
 
-程序：修改代码 ---> 提交并推送 GitHub `main` ---> 等待 Actions 成功 ---> Docker 主机拉取并更新应用。
+程序：修改代码 ---> 推送开发分支 ---> 创建 PR 并通过检查 ---> 合并 `main` ---> 等待镜像发布 ---> Docker 主机拉取并更新应用。
 
 ```sh
 docker compose pull asset

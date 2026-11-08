@@ -25,6 +25,8 @@ Run initialization only when creating a new ledger; it refuses to overwrite an e
 
 ## Development
 
+See the [web development guide](DEVELOPMENT.md) for the directory structure, local setup, checks, and release steps. The guide is written in Chinese.
+
 ```text
 website/             Web frontend and Node.js API
 deploy/docker/       MongoDB initialization
@@ -41,6 +43,8 @@ cp .env.example .env
 # Set MONGODB_URI, APP_PASSWORD, SESSION_SECRET, and LEDGER_INSTANCE_ID.
 # For local development, set APP_ORIGIN to http://localhost:3000.
 npm run build
+# Run once when creating an empty development ledger
+node --env-file=.env scripts/init-ledger.mjs --apply
 npm run dev
 ```
 
@@ -48,9 +52,11 @@ Connect to the MongoDB `asset` database with an `asset_app` account that has rea
 
 In `website/`, run `npm run typecheck` to check types and `npm test` after building.
 
+Rebuild and refresh the browser after frontend changes. Restart `npm run dev` after server changes.
+
 ## Updates
 
-Application: edit code ---> Commit and push to GitHub `main` ---> Wait for Actions to succeed ---> Pull the image and update the application on your Docker host.
+Application: edit code ---> Push a development branch ---> Open a PR and pass checks ---> Merge into `main` ---> Wait for the image to publish ---> Pull and update the application on your Docker host.
 
 ```sh
 docker compose pull asset
