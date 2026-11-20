@@ -1,6 +1,7 @@
 import type {Asset,Book,RecordEntry} from './finance.ts';
 
-export const defaultClassifications=['股市','黄金','虚拟币','现金'];
+export const defaultClassifications=['股市','黄金','现金'];
+export function isArchivedClassification(classification:string){return classification.trim()==='虚拟币';}
 export function categoryFromClassification(classification:string):Asset['category']{
  if(classification==='股市'||classification==='股票')return '股票';
  if(classification==='黄金'||classification==='基金'||classification==='现金'||classification==='债券')return classification;

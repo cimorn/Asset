@@ -51,7 +51,8 @@ for(const [tree,sourceRoot] of sourceTrees){
   assert.equal(api.recordDisplay(rows[0]).direction,'neutral');assert.equal(rows[0].before,200);assert.equal(rows[0].after,200);assert.equal(rows[0].settlement,undefined);
   assert.equal(api.ledgerAtDate(next,opening).assets.find(row=>row.id==='fund').classification,'基金');
   assert.equal(next.gainSnapshots.find(row=>row.date===opening).cnyInvestedCategories.基金,150);
-  assert.equal(next.gainSnapshots.find(row=>row.date===adjustment).cnyInvestedCategories.虚拟币,360);
+  assert.equal(next.gainSnapshots.find(row=>row.date===adjustment).cnyInvestedCategories.虚拟币,undefined);
+  assert.equal(api.capitalAccounts(next).filter(row=>row.classification==='虚拟币').reduce((sum,row)=>sum+row.costCny,0),360);
  });
  test(`${tree}: reclassification persists beyond future valuations carrying older metadata`,()=>{
   let book=fixture();const future='2026-10-10';
@@ -99,7 +100,7 @@ for(const [tree,sourceRoot] of sourceTrees){
   assert.equal(api.recordDisplay(out).label,'卖出');assert.equal(out.settlement,210);assert.equal(out.positionDelta,-200);
   assert.equal(incoming.type,'剩余');assert.equal(incoming.remainingMode,'转入');assert.equal(incoming.settlement,210);
   assert.equal(investment(next,'fund').proceeds,210);assert.equal(investment(next,'fund').gain,60);assert.equal(investment(next,'fund').gainCny,60);
-  assert.equal(principal(next),1360);assert.equal(api.portfolioPerformance(next,'CNY').total.gain,90);
+  assert.equal(principal(next),1360);assert.equal(api.portfolioPerformance(next,'CNY').total.gain,60);
  });
  test(`${tree}: fund to crypto cross-currency fees use source funding CNY basis`,()=>{
   const book=fixture(),next=transfer(book,{targetId:'crypto',amount:200,targetAmount:24}),{out,incoming}=linked(book,next,'fund','crypto');
@@ -107,7 +108,7 @@ for(const [tree,sourceRoot] of sourceTrees){
   assert.equal(api.recordDisplay(out).label,'卖出');assert.equal(api.recordDisplay(incoming).label,'买入');assert.equal(incoming.settlement,-24);
   assert.equal(incoming.fundingCurrency,'CNY');assert.equal(incoming.fundingAmount,200);assert.equal(incoming.settlementCny,-200);assert.equal(incoming.positionDelta,24);
   assert.equal(investment(next,'crypto').invested,34);assert.equal(investment(next,'crypto').investedCny,270);assert.equal(investment(next,'crypto').gainCny,2);
-  assert.equal(principal(next),1360);assert.equal(api.assetSummary(next.assets,'CNY',next.rates).value,1432);assert.equal(api.portfolioPerformance(next,'CNY').total.gain,72);
+  assert.equal(principal(next),1360);assert.equal(api.assetSummary(next.assets,'CNY',next.rates).value,1432);assert.equal(api.portfolioPerformance(next,'CNY').total.gain,50);
  });
  test(`${tree}: investment remaining cash transfers directly across platform and classification`,()=>{
   const book=fixture(),next=transfer(book,{id:'cash',targetId:'remaining',amount:80,sourceValue:undefined}),{out,incoming}=linked(book,next,'cash','remaining');
@@ -127,7 +128,7 @@ for(const [tree,sourceRoot] of sourceTrees){
   const book=fixture(),next=transfer(book,{id:'remaining',targetId:'fund',amount:5,sourceValue:undefined,targetAmount:38,targetValue:238});
   const {incoming}=linked(book,next,'remaining','fund');assert.equal(incoming.fundingCurrency,'USD');assert.equal(incoming.fundingAmount,5);assert.equal(incoming.settlement,-38);assert.equal(incoming.settlementCny,-40);
   assert.equal(asset(next,'remaining').value,15);assert.equal(investment(next,'fund').invested,188);assert.equal(investment(next,'fund').investedCny,190);
-  assert.equal(principal(next),1360);assert.equal(api.portfolioPerformance(next,'CNY').total.gain,78);
+  assert.equal(principal(next),1360);assert.equal(api.portfolioPerformance(next,'CNY').total.gain,48);
   const rerated=api.applyAction(next,{type:'rates',date:adjustment,rates:{CNY:1,USD:9,HKD:.9},source:'fixture revised'});
   assert.equal(rerated.records.find(row=>row.id===incoming.id).settlementCny,-45);assert.equal(investment(rerated,'fund').investedCny,195);assert.equal(principal(rerated),1360);
  });

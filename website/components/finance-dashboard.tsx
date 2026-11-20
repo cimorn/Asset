@@ -5,6 +5,7 @@ import {useState} from 'react';
 import {ratesAt} from '@/lib/exchange';
 import {chartAmount,chartTime,chartDate,chartMonth,chartEndpointTicks} from '@/lib/chart-format';
 import {portfolioPerformance,investmentOverview} from '@/lib/asset-statistics';
+import {portfolioAssets} from '@/lib/capital-accounts';
 import {TrendingUp} from 'lucide-react';
 import {Tabs,TabsList,TabsTrigger} from '@/components/ui/tabs';
 import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem} from '@/components/ui/select';
@@ -22,7 +23,7 @@ export function chartBounds(values:number[]):[number,number]{
 
 export default function PortfolioSummary({book,base,hidden}:{book:Book;base:string;hidden:boolean}){
  const {summary,classified,performance:investment}=investmentOverview(book,base),performance=portfolioPerformance(book,base);
- const all=assetSummary(book.assets,base,book.rates);
+ const all=assetSummary(portfolioAssets(book),base,book.rates);
 
  return <section className="classification-summary-grid" aria-label="资产摘要">
   <PortfolioTable label="资产与投资" rowHeading="项目" hidden={hidden} rows={[

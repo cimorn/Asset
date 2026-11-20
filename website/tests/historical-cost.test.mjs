@@ -20,6 +20,41 @@ const record=(id,date,type,after,extra={})=>({id,assetId:'synthetic',name:'Synth
 function book(api,overrides={}){return {...api.emptyBook(),initialized:true,ledgerAuthority:true,statisticsStart:'2026-09-01',rates:{...rateHistory.at(-1).rates},rateDate:'2026-10-01',rateHistory:structuredClone(rateHistory),assets:[asset()],records:[],...overrides};}
 
 for(const {name,api} of implementations){
+ test(name+': actual RMB opening cost survives valuation and exchange-rate changes',()=>{
+  const opening=api.applyAction(book(api,{assets:[]}),{type:'add',assets:[{...asset(),date:'2026-09-01',cost:99,value:99}],date:'2026-09-01',paidCny:670});
+  const updated=api.applyAction(opening,{type:'trade',id:'synthetic',kind:'value',date:'2026-10-01',value:100});
+  const revisedRates=api.applyAction(updated,{type:'rates',date:'2026-09-01',source:'revised',rates:{CNY:1,USD:6.7,HKD:0.9}});
+  const replayed=api.projectLedger(api.ledgerInputs(revisedRates));
+  const purchase=replayed.records.find(row=>row.type==='买入');
+  assert.equal(purchase.settlement,-99);
+  assert.equal(purchase.settlementCny,-670);
+  assert.equal(api.assetFinancialRows(replayed)[0].netInputCny,670);
+  assert.equal(api.portfolioPerformance(replayed,'CNY').total.gain,130);
+  assert.deepEqual(replayed.gainSnapshots.map(point=>point.cnyInvested),[670,670,670]);
+ });
+
+ test(name+': external purchase adds only actual RMB cost and lets the original record be corrected',()=>{
+  const initial=api.projectLedger(book(api,{records:[record('opening','2026-09-01','买入',100,{settlement:-100,order:1})]}));
+  const bought=api.applyAction(initial,{type:'externalBuy',id:'synthetic',date:'2026-09-15',amount:99,paidCny:670});
+  assert.equal(bought.assets[0].value,199);
+  assert.equal(bought.records.length,2);
+  assert.equal(api.assetFinancialRows(bought)[0].netInputCny,1370);
+  const entry=bought.records.find(row=>row.id!=='opening');
+  const {expected,expectedBefore}=api.recordEditContext(bought,entry.id);
+  const edited=api.applyAction(bought,{type:'recordEdit',id:entry.id,expected,expectedBefore,date:entry.date,paidCny:680});
+  assert.equal(edited.records.length,2);
+  assert.equal(api.assetFinancialRows(edited)[0].netInputCny,1380);
+ });
+
+ test(name+': actual RMB paid for foreign cash opening and deposit is counted only once',()=>{
+  const cash=api.applyAction(book(api,{assets:[]}),{type:'add',assets:[{...asset('现金'),date:'2026-09-01',value:99}],date:'2026-09-01',paidCny:670});
+  const next=api.applyAction(cash,{type:'cash',kind:'存入',id:'synthetic',date:'2026-09-15',amount:9,paidCny:65});
+  const replayed=api.projectLedger(api.ledgerInputs(next));
+  assert.equal(replayed.assets[0].value,108);
+  assert.equal(api.assetFinancialRows(replayed)[0].netInputCny,735);
+  assert.equal(api.portfolioPerformance(replayed,'CNY').total.gain,129);
+ });
+
  test(name+': later valuation and FX updates preserve each historical purchase cost',()=>{
   const initial=book(api,{records:[record('opening','2026-09-01','买入',100,{settlement:-100,order:1})]});
   const projected=api.projectLedger(initial),purchase=projected.records.find(row=>row.id==='opening');
@@ -55,6 +90,20 @@ for(const {name,api} of implementations){
   assert.equal(projected.records.find(row=>row.id==='first').exchangeRate,7);
   assert.equal(projected.records.find(row=>row.id==='second').exchangeRate,7.5);
   assert.equal(projected.records.find(row=>row.id==='sold').exchangeRate,8);
+ });
+
+ test(name+': a rate-only update values holdings consistently while keeping actual RMB cost fixed',()=>{
+  const rates=[rateHistory[0]];
+  const initial=api.applyAction(book(api,{assets:[],rates:rates[0].rates,rateDate:rates[0].date,rateHistory:rates}),{type:'add',assets:[{...asset(),date:rates[0].date,cost:99,value:99}],date:rates[0].date,paidCny:670});
+  const updated=api.applyAction(initial,{type:'rates',date:'2026-10-01',source:'test',rates:{CNY:1,USD:8,HKD:0.95}});
+  const holding=api.investmentRows(updated)[0];
+  assert.equal(holding.netCostCny,670);
+  assert.equal(holding.valueCny,792);
+  assert.equal(holding.gainCny,122);
+  assert.equal(holding.gainCny,api.assetFinancialRows(updated)[0].gainCny);
+  assert.equal(holding.gainCny,api.portfolioPerformance(updated,'CNY').total.gain);
+  assert.equal(updated.records[0].valueCny,693);
+  assert.deepEqual(updated.gainSnapshots.map(point=>point.cnyTotal),[23,122]);
  });
 
  test(name+': neutral cash valuation preserves the first opening balance as historical basis',()=>{

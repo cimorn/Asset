@@ -1,5 +1,5 @@
 import type {Book,RecordEntry} from './finance.ts';
-import {accountClassification} from './capital-accounts.ts';
+import {accountClassification,portfolioAssets} from './capital-accounts.ts';
 export type RatePoint={date:string;rates:Record<string,number>;source:string};
 export type RateDraft={date:string;rates:Record<string,string>};
 const rounded=(n:number)=>Math.round((n+Number.EPSILON)*100)/100;
@@ -52,9 +52,13 @@ export function recordRate(book:Book,record:RecordEntry){return record.exchangeR
 export function stampRecord(book:Book,record:RecordEntry){
  const rate=recordRate(book,record);record.exchangeRate=rate;record.valueCny=rounded(record.after*rate);
  if(record.settlement===undefined&&['转入','收入','卖出到账','消费','支出','买入扣款','存入','取出','转账转入','转账转出'].includes(record.type))record.settlement=record.after-record.before;
- if(record.settlement!==undefined)record.settlementCny=rounded(record.fundingAmount!==undefined&&record.fundingCurrency?Math.sign(record.settlement)*record.fundingAmount*ratesAt(book,record.date)[record.fundingCurrency]:record.settlement*rate);
+ if(record.settlement!==undefined){
+  const fundingCny=record.fundingAmount!==undefined&&record.fundingCurrency?record.fundingAmount*ratesAt(book,record.date)[record.fundingCurrency]:undefined;
+  const costCny=record.paidCny??fundingCny;
+  record.settlementCny=rounded(costCny===undefined?record.settlement*rate:Math.sign(record.settlement)*costCny);
+ }
 }
 export function capturePortfolio(book:Book,date:string){
- const totals:Record<string,number>={},investmentTotals:Record<string,number>={};for(const asset of book.assets){totals[asset.currency]=(totals[asset.currency]??0)+asset.value;if(accountClassification(asset)!=='现金')investmentTotals[asset.currency]=(investmentTotals[asset.currency]??0)+asset.value;}
+ const totals:Record<string,number>={},investmentTotals:Record<string,number>={};for(const asset of portfolioAssets(book)){totals[asset.currency]=(totals[asset.currency]??0)+asset.value;if(accountClassification(asset)!=='现金')investmentTotals[asset.currency]=(investmentTotals[asset.currency]??0)+asset.value;}
  book.snapshots=[...book.snapshots.filter(s=>s.date!==date),{date,totals,investmentTotals,rates:ratesAt(book,date)}].sort((a,b)=>a.date.localeCompare(b.date));
 }

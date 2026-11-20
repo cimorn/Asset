@@ -45,6 +45,22 @@ async function upload(service,book,baseBook){
  const {prepared}=await service.sync(book,'',{baseBook,prepareOnly:true});
  return {prepared,result:await service.sync(book,'',{baseBook,recovery:prepared})};
 }
+test('Mongo persists actual RMB paid as an input rather than a converted projection',async t=>{
+ const {service,db}=await setup(t);
+ await service.importBook(fixture(),{apply:true});
+ const base=(await service.pull()).book;
+ const bought=finance.applyAction(base,{type:'externalBuy',id:'crypto',date,amount:99,paidCny:670});
+ await upload(service,bought,base);
+ const read=await service.pull();
+ const purchase=read.book.records.find(record=>record.paidCny===670);
+ assert.equal(purchase.settlement,-99);
+ assert.equal(purchase.settlementCny,-670);
+ assert.equal(finance.assetFinancialRows(read.book).find(row=>row.assetId==='crypto').netInputCny,740);
+ const stored=await db.collection('ledger_versions').findOne({_id:read.receipt.versionId});
+ const input=stored.inputs.records.find(record=>record.id===purchase.id);
+ assert.equal(input.paidCny,670);
+ assert.equal(input.settlementCny,undefined);
+});
 test('Mongo accepts cash allocation of an existing holding and preserves original history',async t=>{
  const {service}=await setup(t),original=fixture();await service.importBook(original,{apply:true});
  const base=(await service.pull()).book,local=finance.applyAction(base,{type:'classify',id:'fund',classification:'现金',date});

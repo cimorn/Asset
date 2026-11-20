@@ -1,7 +1,7 @@
 import {applyRecordEdit,type RecordEditAction} from './record-edit.ts';
 export {recordEditContext} from './record-edit.ts';
 export type {RecordEditAction} from './record-edit.ts';
-import {applyAdjustment,type ClassificationAction,type TransferAction} from './asset-adjustments.ts';
+import {applyAdjustment,type ClassificationAction,type ExternalBuyAction,type TransferAction} from './asset-adjustments.ts';
 import {assetClassification,categoryFromClassification,classifiedCategory,fillClassifications} from './classification.ts';
 import {standardAssetCode} from './asset-options.ts';
 export {standardAssetCode,assetOptionGroups} from './asset-options.ts';
@@ -11,7 +11,7 @@ export {assetSummary,assetGroupSummaries,classificationSummaries} from './asset-
 import {withLedgerOrder,replaceValuation,ledgerAtDate} from './ledger.ts';
 export {projectLedger,ledgerInputs} from './ledger.ts';
 export {assetClassification,recordClassification,classificationOptions,defaultClassifications,defaultClassification,fillClassifications,categoryFromClassification} from './classification.ts';
-export {recordDisplay,recordEntries} from './record-display.ts';
+export {canRecordPaidCny,recordDisplay,recordEntries} from './record-display.ts';
 import {applyMonth,type MonthSnapshot,type MonthAction} from './monthly.ts';
 import {exactDate,operationDate,eventRate,setRatePoint,stampRecord,capturePortfolio,latestDate,hasConfirmedRates,type RatePoint} from './exchange.ts';
 export {ratesAt,rateHistory,capturePortfolio,stampRecord,latestDate,hasConfirmedRates} from './exchange.ts';
@@ -22,7 +22,7 @@ export {monthlyPerformance} from './monthly.ts';
 export type Category = '股票'|'基金'|'黄金'|'债券'|'现金'|'其他';
 export type Asset = {id:string;name:string;code?:string;platform:string;category:Category;classification?:string;accountClassification?:string;market:string;currency:string;value:number;cost:number|null;proceeds?:number;quantity?:number|null;unitPrice?:number|null;date:string;note:string;icon?:string};
 export type RemainingMode='转入'|'转出'|'消费'|'更新市值';
-export type RecordEntry = {classificationChange?:boolean;previousClassification?:string;previousAccountClassification?:string;balanceKind?:boolean;transferId?:string;transferLeg?:'out'|'in';counterpartyId?:string;fundingCurrency?:string;fundingAmount?:number;positionDelta?:number;id:string;assetId:string;name:string;code?:string;category?:Category;platform:string;currency:string;date:string;type:string;remainingMode?:RemainingMode;inputType?:'买入'|'卖出';classification?:string;order?:number;before:number;after:number;amount:number;note:string;flowIn?:number;flowOut?:number;realizedGain?:number;quantity?:number;unitPrice?:number;fee?:number;settlement?:number;costBasis?:number;invested?:number;proceeds?:number;gain?:number;exchangeRate?:number;settlementCny?:number;valueCny?:number;investedCny?:number;proceedsCny?:number;gainCny?:number};
+export type RecordEntry = {classificationChange?:boolean;previousClassification?:string;previousAccountClassification?:string;balanceKind?:boolean;transferId?:string;transferLeg?:'out'|'in';counterpartyId?:string;fundingCurrency?:string;fundingAmount?:number;paidCny?:number;positionDelta?:number;id:string;assetId:string;name:string;code?:string;category?:Category;platform:string;currency:string;date:string;type:string;remainingMode?:RemainingMode;inputType?:'买入'|'卖出';classification?:string;order?:number;before:number;after:number;amount:number;note:string;flowIn?:number;flowOut?:number;realizedGain?:number;quantity?:number;unitPrice?:number;fee?:number;settlement?:number;costBasis?:number;invested?:number;proceeds?:number;gain?:number;exchangeRate?:number;settlementCny?:number;valueCny?:number;investedCny?:number;proceedsCny?:number;gainCny?:number};
 export type Snapshot = {date:string;totals:Record<string,number>;investmentTotals?:Record<string,number>;rates?:Record<string,number>};
 export type Book = {initialized:boolean;ledgerAuthority?:boolean;assets:Asset[];records:RecordEntry[];snapshots:Snapshot[];rates:Record<string,number>;rateDate:string;rateSource:string;base:string;statisticsStart?:string;rateHistory?:RatePoint[];customCurrencies?:Record<string,string>;months?:MonthSnapshot[];closedAssets?:Asset[];investments?:InvestmentAccount[];capitalBase?:CapitalAccount[];capitalBaseDate?:string;capitalMovements?:CapitalMovement[];capitalAccounts?:CapitalAccount[];gainSnapshots?:GainSnapshot[]};
 export const categories:Category[]=['股票','基金','黄金','债券','现金','其他'];
@@ -43,7 +43,7 @@ export function emptyBook():Book{return {initialized:false,assets:[],records:[],
 export function convert(value:number,currency:string,base:string,rates:Record<string,number>){if(!Number.isFinite(value)||!rates[currency]||!rates[base])throw new Error('币种缺少有效汇率');return value*rates[currency]/rates[base];}
 export function total(assets:Asset[],base:string,rates:Record<string,number>){return assets.reduce((n,a)=>n+convert(a.value,a.currency,base,rates),0);}
 export function groups(assets:Asset[],key:'platform'|'category'|'classification'|'currency'|'market',base:string,rates:Record<string,number>){const result:Record<string,{name:string;value:number;count:number;native:number}>=Object.create(null);for(const a of assets){const name=key==='classification'?accountClassification(a):a[key];const g=result[name]??={name,value:0,count:0,native:0};g.value+=convert(a.value,a.currency,base,rates);g.count++;g.native+=a.value;result[name]=g;}return Object.values(result).sort((a,b)=>b.value-a.value);}
-export type Action=(RecordEditAction|ClassificationAction|TransferAction|TradeAction|PositionAction|MonthAction|{type:'start'}|{type:'add';assets:Asset[]}|{type:'update';asset:Asset;reason?:string}|{type:'remove';id:string}|{type:'icon';id:string;value?:string}|{type:'cash';id:string;kind:'收入'|'支出'|'转入'|'消费'|'存入'|'取出'|'转账'|'更新市值';targetId?:string;amount?:number;value?:number;note?:string}|{type:'rates';rates:Record<string,number>;date:string;source:string}|{type:'base';base:string}|{type:'currency';code:string;name:string;rate:number})&{date?:string;exchangeRate?:number};
+export type Action=(RecordEditAction|ClassificationAction|TransferAction|ExternalBuyAction|TradeAction|PositionAction|MonthAction|{type:'start'}|{type:'add';assets:Asset[];paidCny?:number}|{type:'update';asset:Asset;reason?:string}|{type:'remove';id:string}|{type:'icon';id:string;value?:string}|{type:'cash';id:string;kind:'收入'|'支出'|'转入'|'消费'|'存入'|'取出'|'转账'|'更新市值';targetId?:string;amount?:number;value?:number;note?:string;paidCny?:number}|{type:'rates';rates:Record<string,number>;date:string;source:string}|{type:'base';base:string}|{type:'currency';code:string;name:string;rate:number})&{date?:string;exchangeRate?:number};
 function checkedIcon(value:unknown){if(typeof value!=='string'||value.length>150000||!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value))throw new Error('请上传 PNG、JPG 或 WebP 图片');return value;}
 function checkText(value:unknown,label:string,max=100){if(typeof value!=='string'||!value.trim()||value.length>max)throw new Error(`${label}不能为空且最多 ${max} 个字符`);return value.trim();}
 function amount(value:unknown,label:string){if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>1e12)throw new Error(`${label}须为 0 至 1 万亿之间的有效数字`);return Math.round(value*100)/100;}
@@ -59,13 +59,17 @@ export function validateAsset(raw:unknown,book?:Book):Asset{
 }
 export function applyAction(book:Book,raw:unknown):Book{
  const action=raw as Action|undefined;
+ if(action&&(action.type==='add'||action.type==='cash')&&action.paidCny!==undefined){
+  if(!book.ledgerAuthority)throw new Error('请先读取正式账本');
+  if(action.type==='cash'&&!['收入','转入','存入'].includes(action.kind))throw new Error('仅外币转入可填写实际支付人民币');
+ }
  if(action?.type==='recordEdit'){
   if(!book.ledgerAuthority)throw new Error('请先读取正式账本');
   const date=operationDate(book,action.date,today(),true);
   if(!hasConfirmedRates(book,date))throw new Error('请选择已保存汇率的操作日期');
   return applyRecordEdit(book,action,date);
  }
- if(action&&(action.type==='transfer'||action.type==='classify')){
+ if(action&&(action.type==='transfer'||action.type==='classify'||action.type==='externalBuy')){
   if(!book.ledgerAuthority)throw new Error('请先读取正式账本');
   const date=operationDate(book,action.date,today(),true);
   if(!hasConfirmedRates(book,date))throw new Error('请选择已保存汇率的操作日期');
@@ -122,6 +126,13 @@ function applyActionInputs(book:Book,raw:unknown):Book{
   if(!Array.isArray(a.assets)||a.assets.length<1||a.assets.length>300)throw new Error('每次请录入 1–300 笔资产');
   const additions=a.assets.map(item=>validateAsset({...item,date:a.date??item.date??date},b));const ids=new Set(b.assets.map(v=>v.id));
   for(const item of additions){if(item.date!==date)throw new Error('批量资产请使用同一录入日期');if(ids.has(item.id))throw new Error('记录重复，请重新加载后再试');ids.add(item.id);const bought=item.category!=='现金'&&item.cost!==null;record(item,0,item.value,bought?'买入':'新增资产',item.note);if(bought)Object.assign(b.records[0],{settlement:-item.cost!,flowIn:item.cost,invested:item.cost,proceeds:item.proceeds??0,gain:Math.round((item.value+(item.proceeds??0)-item.cost!)*100)/100});}
+  if(a.paidCny!==undefined){
+   const [item]=additions,paidCny=amount(a.paidCny,'实际支付人民币');
+   const received=item.category==='现金'?item.value:item.cost??0;
+   if(additions.length!==1||item.currency==='CNY'||!received||!paidCny)throw new Error('请为单笔外币资产填写大于零的实付人民币和到账金额');
+   Object.assign(b.records[0],{paidCny,category:item.category});
+   if(item.category==='现金')Object.assign(b.records[0],{type:'剩余',remainingMode:'转入',balanceKind:true,settlement:received});
+  }
   b.assets.push(...additions);for(const item of additions)changeCapital(b,item,item.category==='现金'?item.value:item.cost??item.value,date,b.records.find(row=>row.assetId===item.id)?.id);b.initialized=true;snapshot=true;
  }else if(a.type==='update'){
   const item=validateAsset(a.asset,b);const i=b.assets.findIndex(v=>v.id===item.id);if(i<0)throw new Error('该资产已不存在');
@@ -159,6 +170,11 @@ function applyActionInputs(book:Book,raw:unknown):Book{
   const remaining=valuation||remainingBalance||b.records.some(row=>row.assetId===item.id&&row.type==='剩余');
   item.date=date;record(item,item.value,after,remaining?'剩余':kind,typeof a.note==='string'?a.note.slice(0,500):'');const sourceRecordId=b.records[0].id;item.value=after;
   if(remaining){b.records[0].remainingMode=valuation?'更新市值':incoming?'转入':a.kind==='转账'?'转出':'消费';if(!valuation)b.records[0].settlement=incoming?value:-value;}
+  if(a.paidCny!==undefined){
+   const paidCny=amount(a.paidCny,'实际支付人民币');
+   if(item.currency==='CNY'||!paidCny)throw new Error('仅外币转入可填写大于零的实付人民币');
+   Object.assign(b.records[0],{paidCny,category:'现金',balanceKind:true,settlement:value});
+  }
   if(!valuation&&a.kind!=='转账')changeCapital(b,item,incoming?value:-value,date,sourceRecordId);
   if(target){const balance=Math.round((target.value+value)*100)/100;target.date=date;record(target,target.value,balance,b.records.some(row=>row.assetId===target.id&&row.type==='剩余')?'剩余':'转账转入');if(b.records[0].type==='剩余')Object.assign(b.records[0],{remainingMode:'转入',settlement:value});target.value=balance;}
   if(target&&assetAccountKey(item)!==assetAccountKey(target)){changeCapital(b,item,-value,date,sourceRecordId);changeCapital(b,target,value,date,b.records[0].id);}

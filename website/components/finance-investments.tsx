@@ -8,12 +8,13 @@ import {Table,TableHeader,TableHead,TableRow,TableBody,TableCell} from '@/compon
 import {type Book,type Asset,convert} from '@/lib/finance';
 import {gainReturn,investmentReturn,type GainSnapshot} from '@/lib/investing';
 import {accountClassification,capitalAccounts} from '@/lib/capital-accounts';
+import {isArchivedClassification} from '@/lib/classification';
 import {money,amountText,chartBounds} from './finance-dashboard';
 import {chartAmount,chartPercent,chartTime,chartDate,chartMonth,chartEndpointTicks} from '@/lib/chart-format';
 import {ratesAt} from '@/lib/exchange';
 export default function InvestmentWorkspace({book,base,hidden,onIcon}:{book:Book;base:string;hidden:boolean;onIcon:(asset:Asset)=>void}){
  const [query,setQuery]=useState('');
- const rows=capitalAccounts(book).map(account=>{
+ const rows=capitalAccounts(book).filter(account=>!isArchivedClassification(account.classification)).map(account=>{
   const assets=book.assets.filter(asset=>asset.platform===account.platform&&accountClassification(asset)===account.classification&&asset.currency===account.currency);
   const cash=assets.filter(asset=>asset.category==='现金').reduce((sum,asset)=>sum+asset.value,0);
   const holdings=assets.filter(asset=>asset.category!=='现金').reduce((sum,asset)=>sum+asset.value,0);
@@ -33,7 +34,7 @@ export default function InvestmentWorkspace({book,base,hidden,onIcon}:{book:Book
  </div>;
 }
 
-const curves={total:{title:'收益率',color:'#586a83'},股票:{title:'股市收益率',color:'#54788d'},黄金:{title:'黄金收益率',color:'#97743e'},虚拟币:{title:'虚拟币收益率',color:'#786888'}};
+const curves={total:{title:'收益率',color:'#586a83'},股票:{title:'股市收益率',color:'#54788d'},黄金:{title:'黄金收益率',color:'#97743e'}};
 export function IncomeCurve({book,history,hidden,kind}:{book:Book;history:GainSnapshot[];hidden:boolean;kind:keyof typeof curves}){
  const curve=curves[kind],percentage=true;
  const trend=history.map(snapshot=>{

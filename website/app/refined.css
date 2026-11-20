@@ -357,7 +357,7 @@ button.asset-label:hover strong{color:#597da7}
 .trend-title{display:flex;align-items:baseline;gap:8px}
 .overview-main-curves,.overview-classification-curves{display:grid;gap:16px;margin-bottom:24px}
 .overview-main-curves{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
-.overview-classification-curves{grid-template-columns:repeat(3,minmax(0,1fr))}
+.overview-classification-curves{grid-template-columns:repeat(2,minmax(0,1fr))}
 .overview-main-curves .trend-chart,.overview-main-curves .monthly-chart{height:280px;padding:0 12px 16px}
 .overview-classification-curves .monthly-chart{height:224px;padding:0 12px 12px}
 .overview-main-curves .panel-heading,.overview-classification-curves .panel-heading{min-height:64px;padding:16px 20px}
