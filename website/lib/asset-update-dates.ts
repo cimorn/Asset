@@ -1,4 +1,5 @@
 import type {Asset,Book} from './finance.ts';
+import {portfolioAssets} from './capital-accounts.ts';
 
 export type UpdateStatus='all'|'updated'|'pending';
 type AssetDates={first:string;latest:string;dates:Set<string>};
@@ -6,8 +7,8 @@ export type UpdateDateRow={date:string;total:number;updated:number;pending:numbe
 export type AssetUpdateHistory={dates:string[];assets:Map<string,AssetDates>;rows:UpdateDateRow[]};
 
 /** A check-in comes from a ledger entry, including remaining balances, never an FX refresh. */
-export function assetUpdateHistory(book:Book,scope:Asset[]=book.assets):AssetUpdateHistory{
- const current=new Set(book.assets.map(asset=>asset.id)),assets=new Map<string,AssetDates>(),dates=new Set<string>();
+export function assetUpdateHistory(book:Book,scope:Asset[]=portfolioAssets(book)):AssetUpdateHistory{
+ const current=new Set(portfolioAssets(book).map(asset=>asset.id)),assets=new Map<string,AssetDates>(),dates=new Set<string>();
  for(const record of book.records){
   if(!current.has(record.assetId)||record.type==='移除资产'||!record.date)continue;
   dates.add(record.date);

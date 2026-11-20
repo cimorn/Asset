@@ -1,7 +1,7 @@
 import {convert,type Asset,type Book} from './finance.ts';
-import {assetClassification} from './classification.ts';
+import {isArchivedClassification} from './classification.ts';
 import {roundMoney,investmentRows} from './investing.ts';
-import {accountClassification,capitalAccounts,assetFinancialRows} from './capital-accounts.ts';
+import {accountClassification,capitalAccounts,assetFinancialRows,portfolioAssets} from './capital-accounts.ts';
 
 export function assetSummary(assets:Asset[],base:string,rates:Book['rates']){
  let investment=0,cash=0;
@@ -45,13 +45,14 @@ export function assetGroupSummaries(book:Book,base:string,kind:'classification'|
  return [...grouped].map(([name,rows])=>({name,...financialSummary(book,base,rows,financials)})).sort((a,b)=>b.value-a.value||a.name.localeCompare(b.name));
 }
 
-export function classificationSummaries(book:Book,base:string){return assetGroupSummaries(book,base,'classification');}
+export function classificationSummaries(book:Book,base:string){return assetGroupSummaries(book,base,'classification',portfolioAssets(book));}
 
 /** Only the user's cash classification is separate; remaining investment balances stay invested. */
 export function investmentOverview(book:Book,base:string){
- const summary=assetSummary(book.assets.filter(asset=>accountClassification(asset)!=='现金'),base,book.rates);
+ const assets=portfolioAssets(book);
+ const summary=assetSummary(assets.filter(asset=>accountClassification(asset)!=='现金'),base,book.rates);
  const performance=portfolioPerformance(book,base).investment;
- const total=assetSummary(book.assets,base,book.rates).value;
+ const total=assetSummary(assets,base,book.rates).value;
  const classified=classificationSummaries(book,base).sort((a,b)=>Number(a.name==='现金')-Number(b.name==='现金')).map(group=>({...group,share:total?group.value/total*100:0}));
  return {summary,performance,classified};
 }
@@ -69,6 +70,7 @@ export function portfolioPerformance(book:Book,base:string){
   }
  }
  for(const account of capitalAccounts(book)){
+  if(isArchivedClassification(account.classification))continue;
   const value=book.assets.filter(asset=>asset.platform===account.platform&&accountClassification(asset)===account.classification&&asset.currency===account.currency).reduce((sum,asset)=>sum+asset.value,0);
   const valueCny=value*book.rates[account.currency];
   add(account.classification,convert(account.costCny,'CNY',base,book.rates),convert(valueCny-account.costCny,'CNY',base,book.rates),convert(account.costCny,'CNY',base,book.rates));

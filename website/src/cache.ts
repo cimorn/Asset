@@ -132,7 +132,7 @@ function applyConfirmedAction(id:string,s:State,action:Action,assetBase?:Asset){
   if(merged.conflicts.length)throw fail('资产相同字段已被其他修改更新，请保留输入并核对冲突。',409);
   action={...action,asset:merged.book as Asset};
  }
- if(['trade','cash','position','add','transfer','classify','recordEdit'].includes(action.type)){
+ if(['trade','cash','position','add','transfer','externalBuy','classify','recordEdit'].includes(action.type)){
   const date=action.date??(action.type==='add'?action.assets?.[0]?.date:undefined)??today();
   if(!hasConfirmedRates(book,date))throw fail(`请先在设置中确认 ${date} 的汇率，再更新资产。`,428);
  }

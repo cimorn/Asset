@@ -21,8 +21,21 @@ for(const [tree,sourceRoot] of sourceTrees){
   book.records.push({...book.records[1],id:'fund-value',date:next,type:'更新',after:210,order:5});
   return api.projectLedger(book);
  }
- test(`${tree}: classification choices are exactly the four requested groups`,()=>{
-  assert.deepEqual(api.classificationOptions(fixture()),['股市','黄金','虚拟币','现金']);
+ test(`${tree}: classification choices preserve cash and offer stocks and gold for investment`,()=>{
+  assert.deepEqual(api.classificationOptions(fixture()),['股市','黄金','现金']);
+ });
+ test(`${tree}: portfolio reports exclude crypto across dates while preserving its inputs`,()=>{
+  const original=fixture(),inputs=api.ledgerInputs(original);
+  const crypto={...inputs.records.find(row=>row.id==='opening-fund'),id:'crypto-buy',assetId:'crypto',name:'Legacy crypto',classification:'虚拟币',category:'其他',settlement:-90,after:100,order:6};
+  const replayed=api.projectLedger({...inputs,records:[{...crypto,id:'crypto-value',date:next,type:'更新',settlement:undefined,after:150,order:7},crypto,...inputs.records]});
+  assert.equal(replayed.assets.find(row=>row.id==='crypto').value,150);
+  assert.equal(api.ledgerInputs(replayed).records.filter(row=>row.assetId==='crypto').length,2);
+  assert.equal(api.investmentOverview(replayed,'CNY').summary.value,330);
+  assert.equal(api.investmentOverview(replayed,'CNY').classified.some(row=>row.name==='虚拟币'),false);
+  assert.equal(api.portfolioPerformance(replayed,'CNY').total.cost,1300);
+  assert.equal(api.portfolioPerformance(replayed,'CNY').total.gain,30);
+  assert.deepEqual(replayed.snapshots.map(row=>row.investmentTotals.CNY),[300,330,330]);
+  assert.deepEqual(replayed.gainSnapshots.map(api.investmentReturn),[0,10,10]);
  });
  test(`${tree}: historical cash correction rebuilds every investment point without changing transaction values`,()=>{
   const before=fixture(),inputs=api.ledgerInputs(before);

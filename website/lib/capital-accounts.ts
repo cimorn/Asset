@@ -1,5 +1,5 @@
 import type {Asset,Book} from './finance.ts';
-import {assetClassification} from './classification.ts';
+import {assetClassification,isArchivedClassification} from './classification.ts';
 import {investmentRows,roundMoney} from './investing.ts';
 import {ratesAt} from './exchange.ts';
 import {recordDisplay} from './record-display.ts';
@@ -9,13 +9,14 @@ export type CapitalMovement={id:string;key:string;date:string;amount:number;amou
 export function accountClassification(asset:Asset){return asset.category==='现金'&&assetClassification(asset)==='现金'?(asset.accountClassification?.trim()||'现金'):assetClassification(asset);}
 export function accountKey(platform:string,classification:string,currency:string){return JSON.stringify([platform,classification,currency]);}
 export function assetAccountKey(asset:Asset){return accountKey(asset.platform,accountClassification(asset),asset.currency);}
+export function portfolioAssets(book:Book){return book.assets.filter(asset=>!isArchivedClassification(accountClassification(asset)));}
 
 function balanceNetInput(book:Book,asset:Asset){
  const records=book.records.map((record,index)=>({record,index})).filter(item=>item.record.assetId===asset.id).sort((a,b)=>a.record.date.localeCompare(b.record.date)||(a.record.order??-a.index)-(b.record.order??-b.index));
  // A neutral first balance is an opening input; later neutral records only replace its valuation.
  const inputs=records.filter(({record},index)=>record.remainingMode!=='更新市值'&&(index===0||recordDisplay(record).direction!=='neutral')).map(item=>item.record);
  const principal=book.ledgerAuthority&&records.length?inputs.reduce((sum,record)=>sum+record.after-record.before,0):asset.value;
- const basis=book.ledgerAuthority&&records.length?inputs.reduce((sum,record)=>sum+(record.fundingAmount!==undefined?record.settlementCny??0:(record.after-record.before)*ratesAt(book,record.date)[record.currency]),0):asset.value*(book.rates[asset.currency]??1);
+ const basis=book.ledgerAuthority&&records.length?inputs.reduce((sum,record)=>sum+(record.fundingAmount!==undefined||record.paidCny!==undefined?record.settlementCny??0:(record.after-record.before)*ratesAt(book,record.date)[record.currency]),0):asset.value*(book.rates[asset.currency]??1);
  return {netInput:roundMoney(principal),netInputCny:roundMoney(basis)};
 }
 

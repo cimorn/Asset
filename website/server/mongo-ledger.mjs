@@ -1,6 +1,6 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {MongoClient} from 'mongodb';
-import {ledgerInputs,projectLedger,hasConfirmedRates} from './runtime/finance.mjs';
+import {canRecordPaidCny,ledgerInputs,projectLedger,hasConfirmedRates} from './runtime/finance.mjs';
 import {validateBook} from './feishu-ledger.mjs';
 import {canonical,mergeBooks,same} from '../shared/merge.mjs';
 
@@ -28,7 +28,9 @@ function checkAdjustments(book){
   if(r.type==='分类调整'||r.classificationChange){
    if(r.type!=='分类调整'||r.classificationChange!==true||typeof r.previousClassification!=='string'||!r.previousClassification.trim()||r.previousClassification.length>40||!r.classification?.trim()||r.settlement!==undefined||r.transferId!==undefined||!hasConfirmedRates(book,r.date))throw Error();
   }
-  if(r.positionDelta!==undefined&&(!Number.isFinite(r.positionDelta)||Math.abs(r.positionDelta)>1e12||!r.transferId||r.category==='现金'))throw Error();
+  if(r.paidCny!==undefined&&(!canRecordPaidCny(r)||!positive(r.paidCny)||!positive(Math.abs(r.settlement))||!hasConfirmedRates(book,r.date)))throw Error();
+  const standaloneBuy=r.type==='买入'&&canRecordPaidCny(r)&&!r.balanceKind&&r.settlement<0;
+  if(r.positionDelta!==undefined&&(!Number.isFinite(r.positionDelta)||Math.abs(r.positionDelta)>1e12||(!r.transferId&&!standaloneBuy)||r.category==='现金'))throw Error();
   if(!r.transferId){if(r.transferLeg!==undefined||r.counterpartyId!==undefined||r.fundingAmount!==undefined||r.fundingCurrency!==undefined)throw Error();continue;}
   if(!validId(r.transferId)||!['out','in'].includes(r.transferLeg)||!validId(r.counterpartyId)||!hasConfirmedRates(book,r.date)||!positive(Math.abs(r.settlement)))throw Error();
   const pair=pairs.get(r.transferId)??[];pair.push(r);pairs.set(r.transferId,pair);

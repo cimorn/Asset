@@ -4,6 +4,12 @@ import {recordRate} from './exchange.ts';
 
 export function isCashMovement(record:RecordEntry){return record.category==='现金'&&(['转入','存入','取出','消费','买入扣款','卖出到账','转账转入','转账转出'].includes(record.type)||record.type==='剩余'&&!!record.remainingMode&&record.remainingMode!=='更新市值');}
 
+export function canRecordPaidCny(record:RecordEntry){
+ if(record.currency==='CNY'||record.transferId!==undefined||record.classificationChange)return false;
+ if(record.category!=='现金')return record.type==='买入';
+ return record.type==='转入'||record.type==='存入'||record.type==='剩余'&&record.remainingMode==='转入';
+}
+
 export function recordDisplay(record:RecordEntry){
  if(record.classificationChange)return {label:'分类调整',caption:(record.previousClassification??'')+' → '+(record.classification??''),value:0,direction:'neutral',signed:false};
  if(record.type==='剩余'){

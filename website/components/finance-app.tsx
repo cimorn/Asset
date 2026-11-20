@@ -21,6 +21,7 @@ import TradeForm from './finance-trade';
 import InvestmentWorkspace from './finance-investments';
 import UpdateDates from './finance-update-dates';
 import {assetUpdateHistory,type UpdateStatus} from '@/lib/asset-update-dates';
+import {portfolioAssets} from '@/lib/capital-accounts';
 import {FeishuConnection,type FeishuStatus} from './finance-connections';
 
 const navigation=[['overview','资产总览',LayoutDashboard],['assets','全部资产',Wallet],['records','流水明细',History]] as const;
@@ -71,7 +72,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
   if(!context?.registerTool)return;
   const lifecycle=new AbortController();
   const tools=[
-   {name:'get_asset_summary',title:'查看资产汇总',description:'读取当前显示的NAS账本资产汇总。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>{const current=live.current;return {base:current.base,total:total(current.book.assets,current.base,current.book.rates),assetCount:current.book.assets.length,platforms:[...new Set(current.book.assets.map(asset=>asset.platform))],currencies:[...new Set(current.book.assets.map(asset=>asset.currency))]};}},
+   {name:'get_asset_summary',title:'查看资产汇总',description:'读取当前显示的NAS账本资产汇总。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>{const current=live.current,assets=portfolioAssets(current.book);return {base:current.base,total:total(assets,current.base,current.book.rates),assetCount:assets.length,platforms:[...new Set(assets.map(asset=>asset.platform))],currencies:[...new Set(assets.map(asset=>asset.currency))]};}},
    {name:'open_asset_entry',title:'打开资产录入',description:'进入全部资产并打开添加资产表单，由用户填写并确认保存。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false},execute:(input:unknown)=>{if(input&&Object.keys(input as object).length)throw new Error('此工具不接受参数');setPage('assets');setIconAsset(null);setRemove(null);setEditing(undefined);setModal('asset');return {formOpened:true,saved:false};}}
   ];
   for(const tool of tools){try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}}
@@ -141,7 +142,7 @@ export default function FinanceApp({onLogout}:{onLogout:()=>void}){
      <button className="icon-button" title={hidden?'显示金额':'隐藏金额'} aria-label={hidden?'显示金额':'隐藏金额'} onClick={()=>setHidden(!hidden)}>{hidden?<EyeOff size={16}/>:<Eye size={16}/>}</button>
      <button className="icon-button" title="读取最新账本" aria-label="读取最新账本" disabled={busy} onClick={()=>void load(false,true)}><RefreshCw size={15}/></button>
      {page==='assets'&&<CurrencySelect book={book} value={base} onChange={changeBase}/>}
-     <button className="button secondary export-button" disabled={!ready} onClick={()=>download(`资产罗盘-${today()}.csv`,csvExport(book),'text/csv;charset=utf-8')}><Download size={15}/>导出</button>
+     <button className="button secondary export-button" disabled={!ready} onClick={()=>download(`资产罗盘-${today()}.csv`,csvExport({...book,assets:portfolioAssets(book)}),'text/csv;charset=utf-8')}><Download size={15}/>导出</button>
      {page==='assets'&&<><button className="button secondary" disabled={!ready} onClick={()=>setModal('import')}><Upload size={15}/>批量录入</button>
      <button className="button primary" disabled={!ready} onClick={()=>edit()}><Plus size={17}/>添加资产</button></>}
     </div>
